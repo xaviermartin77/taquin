@@ -9,8 +9,8 @@ from pygame.locals import *
 import random
 import os
 
-MAX_WIDTH = 1900
-MAX_HEIGHT = 960
+MAX_WIDTH = 1500
+MAX_HEIGHT = 1000
 white = (255,255,255)
 black = (0,0,0)
 red = (255,0,0)
