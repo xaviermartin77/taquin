@@ -11,68 +11,94 @@ import os
 
 MAX_WIDTH = 1500
 MAX_HEIGHT = 1000
+INTERFACE_BIG_WIDTH = 400
+INTERFACE_WIDTH = 100
 white = (255,255,255)
 black = (0,0,0)
 red = (255,0,0)
 blue = (0,0,255)
 green = (0,255,0)
 
-
-class ImagesGrid:
-        def __init__(self):
-                self.imageList = getAllImages(ecran)
-                self.firstListIndex = 0
-
-class GameGrid:
-        def __init__(self):
-                self.imageList = getAllImages(ecran)
-                self.firstListIndex = 0
-
-'''
-
-# code mort, à relire
-def gridImage(imageName, grid_width, grid_height, targetName):
-        img = Image.open(imageName)
-        w, h = img.size
-  
-        img1 = ImageDraw.Draw(img)
-        for x in range(1, grid_width):
-                img1.line([((x)*w/grid_width, 0), ((x)*w/grid_width, h)], fill ="red", width = 0)
-        for y in range(1, grid_height):
-                img1.line([(0, (y)*h/grid_height), w, ((y)*h/grid_height)], fill ="red", width = 0)
-        img.save(targetName)
-        # img.show()
-
-
-def tilesFromImage(imageName, grid_width, grid_height):
-        img = Image.open(imageName)
-        w, h = img.size
-        for x in range(grid_width):
-                for y in range(grid_height):
-                        fileName = os.path.splitext(imageName)[0] + '_' + str(x) + '_' + str(y) + '.jpg'
-                        img.crop((x*w/grid_width, y*h/grid_height, (x+1)*w/grid_width, (y+1)*h/grid_height)).save(fileName)
-'''
-
 # récupérer les images, à garder en static, maybe mettre un fichier de config, maybe faire un tableau d'id plutôt que d'images
-def getAllImages(screen):
-        fileExist = True
-        fileCount = 1
-        fileList = []
-        while fileExist:
-                fileName = 'images/image' + str(fileCount) + '.jpg'
-                if os.path.isfile(fileName):
-                        tempImage = pygame.image.load(fileName)
-                        tempImage = pygame.transform.scale(tempImage, (int(screen.get_width()/4), int(screen.get_height()/4)))
-                        fileList.append(tempImage)
-                        fileCount = fileCount + 1
+def generate_all_images(screen_size, image_list_size):
+        (screen_width, screen_height) = screen_size
+        (image_list_width, image_list_height) = image_list_size
+        file_exist = True
+        file_count = 1
+        file_list = []
+        while file_exist:
+                file_name = 'images/image' + str(file_count) + '.jpg'
+                if os.path.isfile(file_name):
+                        temp_image = pygame.image.load(file_name)
+                        temp_image = pygame.transform.scale(temp_image, (int(screen_width/image_list_width), int(screen_height/image_list_height)))
+                        file_list.append(temp_image)
+                        file_count = file_count + 1
                 else:
-                        fileExist = False
-        return fileList
+                        file_exist = False
+        return file_list
 
+# static, tool pour connaitre la taille d'une image dans le menu principal (utile pour le click handler)
+def get_small_image_size(screen_size, image_list_size):
+        (screen_width, screen_height) = screen_size
+        (image_list_width, image_list_height) = image_list_size
+        return (int(screen_width/image_list_width), int(screen_height/image_list_height))
+
+# static, génère les infos pour la gestion des inputs du click pendant la sélection de l'image
+def generate_click_handler_data_for_main_vm(screen_size):
+        (screen_width, screen_height) = screen_size
+        interface_start = screen_width
+        interface_center = screen_width + (INTERFACE_BIG_WIDTH / 2)
+        interface_end = screen_width + INTERFACE_BIG_WIDTH
+        input_data = []
+        input_data.append((0, interface_start, 0, screen_height, 'select_image'))
+        input_data.append((interface_start, interface_center, 0, screen_height / 3, 'decrement_width'))
+        input_data.append((interface_center, interface_end, 0, screen_height / 3, 'increment_width'))
+        input_data.append((interface_start, interface_center, screen_height / 3, screen_height * 2 / 3, 'decrement_height'))
+        input_data.append((interface_center, interface_end, screen_height / 3, screen_height * 2 / 3, 'increment_height'))
+        input_data.append((interface_start, interface_end, screen_height * 2 / 3, screen_height, 'start_game'))
+        return input_data
+
+#static, génère les infos pour la gestion des inputs du click pendant le jeu
+def generate_click_handler_data_for_game_vm(screen_size):
+        (screen_width, screen_height) = screen_size
+        interface_start = screen_width
+        interface_end = screen_width + INTERFACE_WIDTH
+        input_data = []
+        input_data.append((0, interface_start, 0, screen_height, 'select_tile'))
+        input_data.append((interface_start, interface_end, 0, screen_height / 5, 'first_button'))
+        input_data.append((interface_start, interface_end, screen_height / 5, screen_height * 2 / 5, 'second_button'))
+        input_data.append((interface_start, interface_end, screen_height * 2 / 5, screen_height * 3 / 5, 'show_score'))
+        input_data.append((interface_start, interface_end, screen_height * 3 / 5, screen_height * 4 / 5, 'show_time'))
+        input_data.append((interface_start, interface_end, screen_height * 4 / 5, screen_height * 21 / 25, 'background_white'))
+        input_data.append((interface_start, interface_end, screen_height * 21 / 25, screen_height * 22 / 25, 'background_black'))
+        input_data.append((interface_start, interface_end, screen_height * 22 / 25, screen_height * 23 / 25, 'background_red'))
+        input_data.append((interface_start, interface_end, screen_height * 23 / 25, screen_height * 24 / 25, 'background_blue'))
+        input_data.append((interface_start, interface_end, screen_height * 24 / 25, screen_height, 'background_green'))
+        return input_data
+
+#static, génère les infos pour la gestion des inputs du clavier pendant le jeu
+def generate_shortcut_handler_data_for_game_vm():
+        input_data = []
+        input_data.append((pygame.K_r, 'rotate_chrono'))
+        input_data.append((pygame.K_t, 'rotate_trigo'))
+        input_data.append((pygame.K_LEFT, 'move_left'))
+        input_data.append((pygame.K_RIGHT, 'move_right'))
+        input_data.append((pygame.K_DOWN, 'move_down'))
+        input_data.append((pygame.K_UP, 'move_up'))
+        input_data.append((pygame.K_s, 'solve_algo'))
+        input_data.append((pygame.K_s, 'solve_brute'))
+        return input_data
+
+# static, récupère l'image à partir de son index
+def generate_full_screen_image(image_index, grid_size):
+        image = pygame.image.load('images/image' + str(image_index+1) + '.jpg')
+        image = pygame.transform.scale(image, get_full_screen_image_size(image.get_width(), image.get_height(), grid_size))
+        return image
 
 # static, calcule la taille de l'image par rapport à l'écran
-def getImageSize(imageWidth, imageHeight, grid_width, grid_height):
-        screen_width = min(MAX_WIDTH - 100, imageWidth)
+def get_full_screen_image_size(imageWidth, imageHeight, grid_size):
+        (grid_width, grid_height) = grid_size
+        screen_width = min(MAX_WIDTH - INTERFACE_WIDTH, imageWidth)
         screen_height = screen_width * imageHeight / imageWidth
         if screen_height > MAX_HEIGHT:
                 screen_height = min(MAX_HEIGHT, imageHeight)
@@ -81,275 +107,160 @@ def getImageSize(imageWidth, imageHeight, grid_width, grid_height):
         adjusted_screen_height = int(screen_height) - int(screen_height)%grid_height
         return int(adjusted_screen_width), int(adjusted_screen_height)
 
-# method UI, affiche l'image de la tuile sur l'écran (screen), attention au move (utilisé pour le mouvement des tuiles)
-def displayTileImage(screen, image, tileWidth, tileHeight, tilePositionX, tilePositionY, tileIndexX, tileIndexY, text = '', move = (0,0)):
-        tileCoordinateX = tileWidth*tileIndexX + move[0]
-        tileCoordinateY = tileHeight*tileIndexY + move[1]
-        tileLocationX = tileWidth*tilePositionX
-        tileLocationY = tileHeight*tilePositionY
-        screen.blit(image, (tileCoordinateX, tileCoordinateY), (tileLocationX, tileLocationY, tileWidth, tileHeight))
-
-        if (text != ''):
-                ariaFont = pygame.font.SysFont('arial', 50, False, False)
-                textSurface = ariaFont.render(text, True, (255, 0, 0))
-                textRect = textSurface.get_rect()
-                textRect.center = (tileCoordinateX + tileWidth/2, tileCoordinateY + tileHeight/2)
-                screen.blit(textSurface, textRect)
-        moveStep = tileWidth/10 if move[0] !=0 else tileHeight/10
-        if move[0] + move[1] > 0:
-                return move[0] + move[1] + moveStep
-        if move[0] + move[1] < 0:
-                return move[0] + move[1] - moveStep
-        return 0
-
 # static, génère un array random mais solvable
-def getRandomArray(width, height):
-        size = width * height
-        array = list(range(size))
+def get_random_array(grid_size):
+        (grid_width, grid_height) = grid_size
+        grid_length = grid_width * grid_height
+        array = list(range(grid_length))
         solvable = False
         while not solvable:
                 random.shuffle(array)
-                testArray = list(range(size))
+                test_array = list(range(grid_length))
                 count = 0
-                for i in range(size):
-                        testArray[i] = array[i]
-                        if testArray[i] == size-1:
-                                x,y = getPositionFromIndex(i, width)
-                                count = count + width + height - x - y
-                for i in range(size):
-                        if testArray[i] != i:
-                                for j in range(i,size):
-                                        if testArray[j] == i:
-                                                testArray[j] = testArray[i]
-                                                testArray[i] = i
+                for i in range(grid_length):
+                        test_array[i] = array[i]
+                        if test_array[i] == grid_length-1:
+                                (x,y) = (i % grid_width, i // grid_width)
+                                count = count + grid_width + grid_height - x - y
+                for i in range(grid_length):
+                        if test_array[i] != i:
+                                for j in range(i,grid_length):
+                                        if test_array[j] == i:
+                                                test_array[j] = test_array[i]
+                                                test_array[i] = i
                                                 count = count + 1
                 solvable = (count%2 == 0)
         return array
 
-# static, récupère la position d'une tuile à partir de son index (utils)
-def getPositionFromIndex(index, width):
-        return index % width, index // width
+# method UI, affiche l'image de la tuile sur l'écran (screen), attention au move (utilisé pour le mouvement des tuiles)
+def display_tile_image(screen, image, tile_info):
+        (tile_coordinates, tile_size_square_to_display, text_to_display, text_center_coordinates) = tile_info
+        display_image(screen, image, tile_coordinates, tile_size_square_to_display)
+        if (text_to_display != ''):
+                display_text(screen, text_to_display, text_center_coordinates, True, red)
 
 # method UI, affiche toutes les tuiles, sur méthode de displayTileImage (progress -> move)
-def displayAllTiles(screen, image, array, tileWidth, tileHeight, grid_width, grid_height, showText, currentMovement):
-        text = ''
-        progress, tile, target = currentMovement
-        move = (0,0)
-        newProgress = 0
-        for x in range(grid_width):
-                for y in range(grid_height):
-                        i,j = getPositionFromIndex(array[y*grid_width + x], grid_width)
-                        if i == grid_width-1 and j == grid_height-1 and not solved(array):
-                                continue
-                        if showText:
-                                text = str(j*grid_width + i + 1)
-                        if progress != 0 and y*grid_width + x == tile:
-                                if tile == target-1 or tile == target+1:
-                                        move = (progress, 0)
-                                if tile == target-grid_width or tile == target+grid_width:
-                                        move = (0, progress)
-                                newProgress = displayTileImage(screen, image, tileWidth, tileHeight, i, j, x, y, text, move)
-                        else:
-                                displayTileImage(screen, image, tileWidth, tileHeight, i, j, x, y, text)
-        return newProgress
+def display_all_tiles(screen, image, tile_info_grid): 
+        for tile_info in tile_info_grid:
+                display_tile_image(screen, image, tile_info)
 
-# method tapHandler, récupère l'index d'une tile cliquée (ou -1 si on ne trouve rien)
-def getTileCoordinate(x, y, tileWidth, tileHeight, grid_width, grid_height):
-        for i in range(grid_width):
-                for j in range(grid_height):
-                        if x >= tileWidth*i and x < tileWidth*(i+1) and y >= tileHeight*j and y < tileHeight*(j+1):
-                                return j*grid_width + i
-        return -1
-# method liée à la grid, détermine si la tuile peut bouger (et renvoie l'index cible le mvt est possible)
-def canMoveTo(array, index, grid_width, grid_height):
-        if index == -1:
-                return -1
-        if array[index] == (grid_width * grid_height) -1:
-                return -1
-        i,j = getPositionFromIndex(index, grid_width)
-        if i>0 and array[index-1] == (grid_width * grid_height) -1:
-                return index-1
-        if i<grid_width-1 and array[index+1] == (grid_width * grid_height) -1:
-                return index+1
-        if j>0 and array[index-grid_width] == (grid_width * grid_height) -1:
-                return index-grid_width
-        if j<grid_height-1 and array[index+grid_width] == (grid_width * grid_height) -1:
-                return index+grid_width
-        return -1
+# method UI, affiche l'image sur l'écran
+def display_image(screen, image, image_coordinates, image_zone):
+        screen.blit(image, image_coordinates, image_zone)
 
-# method liée à la grid, détermine si la grid est résolue
-def solved(array):
-        return all(array[i] <= array[i+1] for i in range(len(array)-1))
+# method UI, affiche un texte sur l'écran
+def display_text(screen, text_to_display, text_center_coordinates, is_big_font, color):
+        font = pygame.font.SysFont('arial', 50, False, False) if is_big_font else pygame.font.SysFont('arial', 20, False, False)
+        textSurface = font.render(text_to_display, True, color)
+        textRect = textSurface.get_rect()
+        textRect.center = text_center_coordinates
+        screen.blit(textSurface, textRect)
+        
+# method UI, affiche toutes les images à sélectionner, avec une taille custom (en x et en y)
+def display_all_images_to_select(screen, image_list, image_list_size):
+        (image_list_width, image_list_height) = image_list_size
+        screen_width = screen.get_width() - INTERFACE_BIG_WIDTH
+        screen_height = screen.get_height()
+        image_width = screen_width/image_list_width
+        image_height = screen_height/image_list_height
+        for index, image in enumerate(image_list):
+                (x,y) = (index % image_list_width, index // image_list_width)
+                image_coordinates = (x*screen_width/image_list_width, y*screen_height/image_list_height)
+                image_zone = (0, 0, screen_width/image_list_width, screen_height/image_list_height)
+                display_image(screen, image, image_coordinates, image_zone)
 
-# method UI, montre l'indice (l'image complète)
-def showHint(screen, image):
+# method UI, montre l'image complète (pour l'indice et quand le jeu est terminé)
+def show_fullscreen_image(screen, image):
         screen.blit(image, (0,0))
-
-# method animationHandler, détermine si le mouvement de la tuile est terminé
-def isMovementOver(move, tileWidth, tileHeight, grid_width):
-        progress, tile, target = move
-        if tile == target-1 and progress >= tileWidth:
-                return True
-        if tile == target+1 and progress <= -tileWidth:
-                return True
-        if tile == target-grid_width and progress >= tileHeight:
-                return True
-        if tile == target+grid_width and progress <= -tileHeight:
-                return True
-        return False
 
 # method UI, affiche l'interface pendant le jeu (indice, redémarrer, score, temps, couleur du fond)
 # to add : back, solve, shortcuts
 def display_game_interface(screen, showing_score, score, showing_time, time, solved):
-        ariaFont = pygame.font.SysFont('arial', 20, False, False)
+        interface_start = screen.get_width() - INTERFACE_WIDTH
+        interface_center = screen.get_width() - (INTERFACE_WIDTH / 2)
+        interface_end = screen.get_width()
 
-        firstText = 'Menu' if solved else 'Hint'
-        textSurface = ariaFont.render(firstText, True, black)
-        textRect = textSurface.get_rect()
-        textRect.center = (screen.get_width() - 50, screen.get_height()/10)
-        screen.blit(textSurface, textRect)
+        first_text = 'Menu' if solved else 'Hint'
+        display_text(screen, first_text, (interface_center, screen.get_height() / 10), False, black)
 
-        pygame.draw.line(screen, black, (screen.get_width() - 100, screen.get_height()/5), (screen.get_width(), screen.get_height()/5))
+        pygame.draw.line(screen, black, (interface_start, screen.get_height()/5), (interface_end, screen.get_height()/5))
 
-        secondText = 'Restart' if solved else 'Figures'
-        textSurface = ariaFont.render(secondText, True, black)
-        textRect = textSurface.get_rect()
-        textRect.center = (screen.get_width() - 50, 3*screen.get_height()/10)
-        screen.blit(textSurface, textRect)
+        second_text = 'Restart' if solved else 'Figures'
+        display_text(screen, second_text, (interface_center, screen.get_height() * 3 / 10), False, black)
 
-        pygame.draw.line(screen, black, (screen.get_width() - 100, 2*screen.get_height()/5), (screen.get_width(), 2*screen.get_height()/5))
+        pygame.draw.line(screen, black, (interface_start, 2*screen.get_height()/5), (interface_end, 2*screen.get_height()/5))
 
-        scoreText = 'Score'
+        score_text = 'Score'
         if showing_score:
-                scoreText = str(score)
-        textSurface = ariaFont.render(scoreText, True, black)
-        textRect = textSurface.get_rect()
-        textRect.center = (screen.get_width() - 50, 5*screen.get_height()/10)
-        screen.blit(textSurface, textRect)
+                score_text = str(score)
+        display_text(screen, score_text, (interface_center, screen.get_height() * 5 / 10), False, black)
 
-        pygame.draw.line(screen, black, (screen.get_width() - 100, 3*screen.get_height()/5), (screen.get_width(), 3*screen.get_height()/5))
+        pygame.draw.line(screen, black, (interface_start, 3*screen.get_height()/5), (screen.get_width(), 3*screen.get_height()/5))
 
-        timeText = 'Time'
+        time_text = 'Time'
         if showing_time:
-                timeText = str(time)
-        textSurface = ariaFont.render(timeText, True, black)
-        textRect = textSurface.get_rect()
-        textRect.center = (screen.get_width() - 50, 7*screen.get_height()/10)
-        screen.blit(textSurface, textRect)
+                time_text = str(time)
+        display_text(screen, time_text, (interface_center, screen.get_height() * 7 / 10), False, black)
 
-        pygame.draw.line(screen, black, (screen.get_width() - 100, 4*screen.get_height()/5-1), (screen.get_width(), 4*screen.get_height()/5-1))
+        pygame.draw.line(screen, black, (interface_start, 4*screen.get_height()/5-1), (screen.get_width(), 4*screen.get_height()/5-1))
         
-        screen.fill(white, (screen.get_width()-100, 4*screen.get_height()/5, 100, screen.get_height()/25))
-        screen.fill(black, (screen.get_width()-100, 21*screen.get_height()/25, 100, screen.get_height()/25))
-        screen.fill(red, (screen.get_width()-100, 22*screen.get_height()/25, 100, screen.get_height()/25))
-        screen.fill(blue, (screen.get_width()-100, 23*screen.get_height()/25, 100, screen.get_height()/25))
-        screen.fill(green, (screen.get_width()-100, 24*screen.get_height()/25, 100, screen.get_height()/25))
+        screen.fill(white, (interface_start, screen.get_height() * 4 / 5, interface_end, screen.get_height() * 21 / 25))
+        screen.fill(black, (interface_start, screen.get_height() * 21 / 25, interface_end, screen.get_height() * 22 /25))
+        screen.fill(red, (interface_start, screen.get_height() * 22 / 25, interface_end, screen.get_height() * 23 /25))
+        screen.fill(blue, (interface_start, screen.get_height() * 23 / 25, interface_end, screen.get_height() * 24 /25))
+        screen.fill(green, (interface_start, screen.get_height() * 24 / 25, interface_end, screen.get_height()))
+
+# method UI, encadre une zone avec des traits
+def draw_square(screen, square_coordinates, color):
+        (left, right, top, bottom) = square_coordinates
+        pygame.draw.line(screen, red, (left, top), (right, top))
+        pygame.draw.line(screen, red, (left, bottom), (right, bottom))
+        pygame.draw.line(screen, red, (left, top), (left, bottom))
+        pygame.draw.line(screen, red, (right, top), (right, bottom))
 
 
 # method UI, affiche l'interface avant le jeu (image sélectionnée, nombre de tuiles longueur et largeut, démarrer)
 # to add : hint, stats
-def display_start_interface(screen, image_index, grid_width, grid_height):
-        
-        index_x = image_index % 3
-        index_y = image_index // 3
-        pygame.draw.line(screen, red, (index_x*screen.get_width()/4, index_y*screen.get_height()/4), ((index_x+1)*screen.get_width()/4, index_y*screen.get_height()/4))
-        pygame.draw.line(screen, red, (index_x*screen.get_width()/4, (index_y+1)*screen.get_height()/4), ((index_x+1)*screen.get_width()/4, (index_y+1)*screen.get_height()/4))
-        pygame.draw.line(screen, red, (index_x*screen.get_width()/4, index_y*screen.get_height()/4), (index_x*screen.get_width()/4, (index_y+1)*screen.get_height()/4))
-        pygame.draw.line(screen, red, ((index_x+1)*screen.get_width()/4, index_y*screen.get_height()/4), ((index_x+1)*screen.get_width()/4, (index_y+1)*screen.get_height()/4))
-        
-        ariaFont = pygame.font.SysFont('arial', 50, False, False)
-        
-        textSurface = ariaFont.render('Width', True, black)
-        textRect = textSurface.get_rect()
-        textRect.center = (screen.get_width()*7/8, screen.get_height()/6 - 40)
-        screen.blit(textSurface, textRect)
-        
-        textSurface = ariaFont.render(str(grid_width), True, black)
-        textRect = textSurface.get_rect()
-        textRect.center = (screen.get_width()*7/8, screen.get_height()/6 + 40)
-        screen.blit(textSurface, textRect)
+def display_start_interface(screen, selected_image_index, grid_size, image_list_size):
+        (grid_width, grid_height) = grid_size
+        (image_list_width, image_list_height) = image_list_size
 
-        minusTextWidth = '-' if grid_width > 2 else ''
-        textSurface = ariaFont.render(minusTextWidth, True, black)
-        textRect = textSurface.get_rect()
-        textRect.center = (screen.get_width()*13/16, screen.get_height()/6 + 40)
-        screen.blit(textSurface, textRect)
+        if selected_image_index != -1:
+                index_x = selected_image_index % image_list_width
+                index_y = selected_image_index // image_list_width
+                screen_width = screen.get_width() - INTERFACE_BIG_WIDTH
+                screen_height = screen.get_height()
+                image_width = screen_width/image_list_width
+                image_height = screen_height/image_list_height
+                selected_image_square = (index_x * image_width, (index_x + 1) * image_width, index_y * image_height, (index_y + 1) * image_height)
+                draw_square(screen, selected_image_square, red)
 
-        plusTextWidth = '+' if grid_width < 20 else ''
-        textSurface = ariaFont.render(plusTextWidth, True, black)
-        textRect = textSurface.get_rect()
-        textRect.center = (screen.get_width()*15/16, screen.get_height()/6 + 40)
-        screen.blit(textSurface, textRect)
+        interface_start = screen.get_width() - INTERFACE_BIG_WIDTH
+        interface_left = screen.get_width() - (INTERFACE_BIG_WIDTH * 3 / 4)
+        interface_center = screen.get_width() - (INTERFACE_BIG_WIDTH / 2)
+        interface_right = screen.get_width() - (INTERFACE_BIG_WIDTH / 4)
+        interface_end = screen.get_width()
         
-        pygame.draw.line(screen, black, (screen.get_width()*3/4, screen.get_height()/3), (screen.get_width(), screen.get_height()/3))
+        display_text(screen, 'Width', (interface_center, screen.get_height()/6 - 40), True, black)
+        display_text(screen, str(grid_width), (interface_center, screen.get_height()/6 + 40), True, black)
+        minus_text_for_width = '-' if grid_width > 2 else ''
+        display_text(screen, minus_text_for_width, (interface_left, screen.get_height()/6 + 40), True, black)
+        plus_text_for_width = '+' if grid_width < 20 else ''
+        display_text(screen, plus_text_for_width, (interface_right, screen.get_height()/6 + 40), True, black)
         
-        textSurface = ariaFont.render('Height', True, black)
-        textRect = textSurface.get_rect()
-        textRect.center = (screen.get_width()*7/8, 3*screen.get_height()/6 - 40)
-        screen.blit(textSurface, textRect)
+        pygame.draw.line(screen, black, (interface_start, screen.get_height()/3), (interface_end, screen.get_height()/3))
         
-        textSurface = ariaFont.render(str(grid_height), True, black)
-        textRect = textSurface.get_rect()
-        textRect.center = (screen.get_width()*7/8, 3*screen.get_height()/6 + 40)
-        screen.blit(textSurface, textRect)
+        display_text(screen, 'Height', (interface_center, 3*screen.get_height()/6 - 40), True, black)
+        display_text(screen, str(grid_height), (interface_center, 3*screen.get_height()/6 + 40), True, black)
+        minus_text_for_height = '-' if grid_height > 2 else ''
+        display_text(screen, minus_text_for_height, (interface_left, 3*screen.get_height()/6 + 40), True, black)
+        plus_text_for_height = '+' if grid_height < 20 else ''
+        display_text(screen, plus_text_for_height, (interface_right, 3*screen.get_height()/6 + 40), True, black)
 
-        minusTextHeight = '-' if grid_height > 2 else ''
-        textSurface = ariaFont.render(minusTextHeight, True, black)
-        textRect = textSurface.get_rect()
-        textRect.center = (screen.get_width()*13/16, 3*screen.get_height()/6 + 40)
-        screen.blit(textSurface, textRect)
+        pygame.draw.line(screen, black, (screen.get_width() - INTERFACE_BIG_WIDTH, 2*screen.get_height()/3), (screen.get_width(), 2*screen.get_height()/3))
 
-        plusTextHeight = '+' if grid_height < 20 else ''
-        textSurface = ariaFont.render(plusTextHeight, True, black)
-        textRect = textSurface.get_rect()
-        textRect.center = (screen.get_width()*15/16, 3*screen.get_height()/6 + 40)
-        screen.blit(textSurface, textRect)
+        display_text(screen, 'Start', (interface_center, 5*screen.get_height()/6), True, black)
 
-        pygame.draw.line(screen, black, (screen.get_width()*3/4, 2*screen.get_height()/3), (screen.get_width(), 2*screen.get_height()/3))
-
-        textSurface = ariaFont.render('Start', True, black)
-        textRect = textSurface.get_rect()
-        textRect.center = (screen.get_width()*7/8, 5*screen.get_height()/6)
-        screen.blit(textSurface, textRect)
-
-# method tapHandler, liée à la grid, renvoie la tuile vide et la tuile à bouger
-def autoMoveTarget(currentArray, direction, grid_width, grid_height):
-
-        '''
-        (autoTile, autoTargetTile) = autoMoveTarget(currentArray, 2, grid_width, grid_height)
-                if autoTargetTile != -1 and not solved(currentArray) :
-                        if start_ticks == 0:
-                                start_ticks = pygame.time.get_ticks()
-                        move_count = move_count + 1
-                        firstProgress = 1 if autoTile < autoTargetTile else -1
-                        currentMovement = (firstProgress, autoTile, autoTargetTile)
-        '''
-        
-        target_tile = -1
-        for i in range(len(currentArray)):
-                if currentArray[i] == len(currentArray)-1:
-                        target_tile = i
-                        break
-        
-        if target_tile == -1:
-                return (-1,-1)
-        
-        i,j = getPositionFromIndex(target_tile, grid_width)
-        
-        if i>0 and direction == 0:
-                # move left
-                return ((i - 1) + j*grid_width, i + j*grid_width)
-        if i<grid_width-1 and direction == 1:
-                # move right
-                return ((i + 1) + j*grid_width, i + j*grid_width)
-        if j>0 and direction == 2:
-                # move down
-                return (i + (j-1)*grid_width, i + j*grid_width)
-        if j<grid_height-1 and direction == 3:
-                # move up
-                return (i + (j+1)*grid_width, i + j*grid_width)
-        #print('tried move ' + str(direction))
-        return (-1, -1)
 
 '''
 # solver, à voir plus tard
@@ -739,43 +650,6 @@ def solveGeneral(currentArray, target_index, grid_width, grid_height):
         return(-1,-1)
 
 
-def rotate(currentArray, start_index, end_index, grid_width, grid_height, rotate_chrono):
-        blank_index = -1
-        for i in range(len(currentArray)):
-                if currentArray[i] == len(currentArray)-1:
-                        blank_index = i
-                        break
-        
-        if blank_index == -1:
-                return (-1,-1)
-        
-        blank_x, blank_y = getPositionFromIndex(blank_index, grid_width)
-        start_x, start_y = getPositionFromIndex(start_index, grid_width)
-        end_x, end_y = getPositionFromIndex(end_index, grid_width)
-        
-        if blank_x >= start_x and blank_x <= end_x and blank_y == start_y:
-                if rotate_chrono and blank_x != start_x:
-                        return autoMoveTarget(currentArray, 0, grid_width, grid_height)
-                if (not rotate_chrono) and blank_x != end_x:
-                        return autoMoveTarget(currentArray, 1, grid_width, grid_height)
-        if blank_x >= start_x and blank_x <= end_x and blank_y == end_y:
-                if rotate_chrono and blank_x != end_x:
-                        return autoMoveTarget(currentArray, 1, grid_width, grid_height)
-                if (not rotate_chrono) and blank_x != start_x:
-                        return autoMoveTarget(currentArray, 0, grid_width, grid_height)
-        if blank_y >= start_y and blank_y <= end_y and blank_x == start_x:
-                if rotate_chrono and blank_y != end_y:
-                        return autoMoveTarget(currentArray, 3, grid_width, grid_height)
-                if (not rotate_chrono) and blank_y != start_y:
-                        return autoMoveTarget(currentArray, 2, grid_width, grid_height)
-        if blank_y >= start_y and blank_y <= end_y and blank_x == end_x:
-                if rotate_chrono and blank_y != start_y:
-                        return autoMoveTarget(currentArray, 2, grid_width, grid_height)
-                if (not rotate_chrono) and blank_y != end_y:
-                        return autoMoveTarget(currentArray, 3, grid_width, grid_height)
-        return(-1,-1)
-
-
 # algo brute force
 
 def getKeyFromArray(array):
@@ -822,163 +696,517 @@ def solveBruteForce(currentArray, grid_width, grid_height):
 
 '''
 
+class ImagesViewModel:
+        def __init__(self, screen_size, image_list_size):
+                self.image_list = generate_all_images(screen_size, image_list_size)
+                self.image_list_size = image_list_size
+                self.image_square_size = get_small_image_size(screen_size, image_list_size)
+                self.click_handler_data = generate_click_handler_data_for_main_vm(screen_size)
+                self.first_list_index = 0
+                self.is_game_preparing = False
+                self.game_running = False
+                self.grid_width = 3
+                self.grid_height = 3
+                self.selected_image_index = 0
+
+        def scroll_up(self):
+                self.first_list_index = self.first_list_index - self.image_list_size[0] if self.first_list_index - self.image_list_size[0] >= 0 else 0
+
+        def scroll_down(self):
+                image_list_length = self.image_list_size[0] * self.image_list_size[1]
+                self.first_list_index = self.first_list_index + self.image_list_size[0] if self.first_list_index + image_list_length < len(self.image_list) else self.first_list_index
+
+        def select_index(self, position):
+                if position + self.first_list_index < len(self.image_list):
+                        self.selected_image_index = position + self.first_list_index
+        
+        def get_selected_image_index(self):
+                return self.selected_image_index
+        
+        def get_selected_image_position(self):
+                image_list_length = self.image_list_size[0] * self.image_list_size[1]
+                if self.selected_image_index >= self.first_list_index and self.selected_image_index < self.first_list_index + image_list_length:
+                        return self.selected_image_index - self.first_list_index
+                return -1
+
+        def get_image_at_position(self, position):
+                if (position + self.first_list_index) >= len(self.image_list):
+                        return None
+                return self.image_list[position + self.first_list_index]
+
+        def get_images_displayed_list(self):
+                (image_list_width, image_list_height) = self.image_list_size
+                image_list_length = image_list_width * image_list_height
+                result = []
+                
+                for position in range(image_list_length):
+                        if (position + self.first_list_index) >= len(self.image_list):
+                                continue
+                        result.append(self.get_image_at_position(position))
+                return result
+
+        def get_image_list_size(self):
+                return self.image_list_size
+
+        def prepare_for_start(self):
+                self.is_game_preparing = True
+
+        def start_game(self):
+                # TODO : set screen size (adapt it to image shape)
+                self.game_running = True
+                self.is_game_preparing = False
+
+        def quit_game(self):
+                # TODO : set screen size (return to normal shape)
+                self.game_running = False
+
+        def should_start_game(self):
+                return self.is_game_preparing
+
+        def is_game_running(self):
+                return self.game_running
+
+        def decrement_grid_width(self):
+                self.grid_width = self.grid_width - 1 if self.grid_width > 2 else self.grid_width
+
+        def increment_grid_width(self):
+                self.grid_width = self.grid_width + 1 if self.grid_width < 20 else self.grid_width
+
+        def decrement_grid_height(self):
+                self.grid_height = self.grid_height - 1 if self.grid_height > 2 else self.grid_height
+
+        def increment_grid_height(self):
+                self.grid_height = self.grid_height + 1 if self.grid_height < 20 else self.grid_height
+
+        def get_grid_size(self):
+                return (self.grid_width, self.grid_height)
+
+        def get_code_for_click(self, pos):
+                for handler in self.click_handler_data:
+                        (x_start, x_end, y_start, y_end, code) = handler
+                        if pos[0] > x_start and pos[0] < x_end and pos[1] > y_start and pos[1] < y_end:
+                                return code
+                return 'none'
+
+        def handle_click(self, pos):
+                handler_code = self.get_code_for_click(pos)
+                if handler_code == 'select_image':
+                        (image_width, image_height) = self.image_square_size
+                        index_x = int(pos[0] // image_width)
+                        index_y = int(pos[1] // image_height)
+                        self.select_index(index_x + self.image_list_size[0] * index_y)
+                elif handler_code == 'decrement_width':
+                        self.decrement_grid_width()
+                elif handler_code == 'increment_width':
+                        self.increment_grid_width()
+                elif handler_code == 'decrement_height':
+                        self.decrement_grid_height()
+                elif handler_code == 'increment_height':
+                        self.increment_grid_height()
+                elif handler_code == 'start_game':
+                        self.prepare_for_start()
+                
+                
+
+class GameViewModel:
+        def __init__(self, image_index, grid_size):
+                selected_image = generate_full_screen_image(image_index, grid_size)
+                self.full_screen_image = selected_image
+                self.grid_size = grid_size
+                self.firstListIndex = 0
+                self.tile_size = (selected_image.get_width()/grid_size[0], selected_image.get_height()/grid_size[1])
+                self.click_handler_data = generate_click_handler_data_for_game_vm((selected_image.get_width(), selected_image.get_height()))
+                self.shortcut_handler_data = generate_shortcut_handler_data_for_game_vm()
+                self.is_game_leaving = False
+                
+                self.background_color = white
+                
+                self.start_ticks = 0
+                self.final_time = 0
+                self.seconds = 0
+                self.move_count = 0
+                
+                self.is_showing_hint = False
+                self.is_showing_figures = False
+                self.is_showing_score = True
+                self.is_showing_time = True
+
+                self.current_array = get_random_array(grid_size)
+                self.current_movement = (0, 0, 0) # progress, tile, target
+
+        def get_game_screen_size(self):
+                return (self.full_screen_image.get_width() + INTERFACE_WIDTH, self.full_screen_image.get_height())
+
+        def get_game_screen_square(self):
+                return (0, 0, self.full_screen_image.get_width(), self.full_screen_image.get_height())
+
+        def get_full_screen_image(self):
+                return self.full_screen_image
+
+        def shuffle(self):
+                self.start_ticks = 0
+                self.final_time = 0
+                self.seconds = 0
+                self.move_count = 0        
+                self.current_array = get_random_array(self.grid_size)
+                self.current_movement = (0, 0, 0)
+
+        def start_showing_hint(self):
+                self.is_showing_hint = True
+
+        def stop_showing_hint(self):
+                self.is_showing_hint = False
+
+        def should_show_hint(self):
+                return self.is_showing_hint
+
+        def start_showing_figures(self):
+                self.is_showing_figures = True
+
+        def stop_showing_figures(self):
+                self.is_showing_figures = False
+
+        def should_show_figures(self):
+                return self.is_showing_figures
+
+        def switch_showing_score(self):
+                self.is_showing_score = not self.is_showing_score
+
+        def should_show_score(self):
+                return self.is_showing_score
+
+        def switch_showing_time(self):
+                self.is_showing_time = not self.is_showing_time
+
+        def should_show_time(self):
+                return self.is_showing_time
+
+        def select_background_color(self, color):
+                self.background_color = color
+
+        def get_background_color(self):
+                return self.background_color
+
+        def increment_move_count(self):
+                self.move_count = self.move_count + 1
+
+        def get_move_count(self):
+                return self.move_count
+
+        def check_if_grid_is_solved(self):
+                if self.is_game_solved() and self.final_time == 0 and self.start_ticks>0:
+                        self.final_time = pygame.time.get_ticks() - self.start_ticks
+
+        def get_time_to_display(self):
+                return (self.final_time if self.is_game_solved() else (pygame.time.get_ticks() - self.start_ticks if self.start_ticks > 0 else 0)) // 1000
+
+        def is_game_solved(self):
+                return all(self.current_array[i] <= self.current_array[i+1] for i in range(len(self.current_array)-1))
+
+        def is_tile_moving(self):
+                return self.current_movement[0] != 0
+
+        def is_white_tile(self, tile_index):
+                return self.current_array[tile_index] == len(self.current_array) - 1
+
+        def get_white_tile_index(self):
+                for index in range(len(self.current_array)):
+                        if self.is_white_tile(index):
+                                return index
+                return -1
+        
+        def move_with_direction_if_possible(self, direction):
+                white_tile_index = self.get_white_tile_index()
+                (white_tile_x, white_tile_y) = self.get_coordinates_from_index(white_tile_index)
+                (grid_width, grid_height) = self.grid_size
+                
+                if white_tile_x < grid_width - 1 and direction == 0:
+                        # move left
+                        self.start_moving(white_tile_index + 1, white_tile_index)
+                if white_tile_x > 0 and direction == 1:
+                        # move right
+                        self.start_moving(white_tile_index - 1, white_tile_index)
+                if white_tile_y > 0 and direction == 2:
+                        # move down
+                        self.start_moving(white_tile_index - grid_width, white_tile_index)
+                if white_tile_y < grid_height - 1 and direction == 3:
+                        # move up
+                        return self.start_moving(white_tile_index + grid_width, white_tile_index)
+                return (-1, -1)
+
+        def rotate_if_possible(self, rotate_chrono, start_index = 0, end_index = -1):
+                if end_index == -1:
+                        end_index = len(self.current_array) - 1
+                white_tile_index = self.get_white_tile_index()
+                (white_tile_x, white_tile_y) = self.get_coordinates_from_index(white_tile_index)
+                (start_tile_x, start_tile_y) = self.get_coordinates_from_index(start_index)
+                (end_tile_x, end_tile_y) = self.get_coordinates_from_index(end_index)
+                
+                if white_tile_x >= start_tile_x and white_tile_x <= end_tile_x and white_tile_y == start_tile_y:
+                        if rotate_chrono and white_tile_x != start_tile_x:
+                                self.move_with_direction_if_possible(1)
+                        if (not rotate_chrono) and white_tile_x != end_tile_x:
+                                self.move_with_direction_if_possible(0)
+                if white_tile_x >= start_tile_x and white_tile_x <= end_tile_x and white_tile_y == end_tile_y:
+                        if rotate_chrono and white_tile_x != end_tile_x:
+                                self.move_with_direction_if_possible(0)
+                        if (not rotate_chrono) and white_tile_x != start_tile_x:
+                                self.move_with_direction_if_possible(1)
+                if white_tile_y >= start_tile_y and white_tile_y <= end_tile_y and white_tile_x == start_tile_x:
+                        if rotate_chrono and white_tile_y != end_tile_y:
+                                self.move_with_direction_if_possible(3)
+                        if (not rotate_chrono) and white_tile_y != start_tile_y:
+                                self.move_with_direction_if_possible(2)
+                if white_tile_y >= start_tile_y and white_tile_y <= end_tile_y and white_tile_x == end_tile_x:
+                        if rotate_chrono and white_tile_y != start_tile_y:
+                                self.move_with_direction_if_possible(2)
+                        if (not rotate_chrono) and white_tile_y != end_tile_y:
+                                self.move_with_direction_if_possible(3)
+
+        def move_tile_if_possible(self, position):
+                tile_index = self.get_tile_index_from_position(position)
+                if tile_index != -1:
+                        target_tile_index = self.get_target_index_from_tile(tile_index)
+                        if target_tile_index != -1:
+                                self.start_moving(tile_index, target_tile_index)
+                        
+
+        def get_tile_index_from_position(self, position):
+                (x, y) = position
+                (tile_width, tile_height) = self.tile_size
+                (grid_width, grid_height) = self.grid_size
+                for i in range(grid_width):
+                        for j in range(grid_height):
+                                if x >= tile_width*i and x < tile_width*(i+1) and y >= tile_height*j and y < tile_height*(j+1):
+                                        return j*grid_width + i
+                return -1
+                        
+
+        def get_coordinates_from_index(self, index):
+                grid_width = self.grid_size[0]
+                return index % grid_width, index // grid_width
+
+        def get_target_index_from_tile(self, tile_index):
+                (grid_width, grid_height) = self.grid_size
+                if self.is_white_tile(tile_index):
+                        return -1
+                (i, j) = self.get_coordinates_from_index(tile_index)
+                if i > 0 and self.is_white_tile(tile_index - 1):
+                        return tile_index - 1
+                if i < grid_width - 1 and self.is_white_tile(tile_index + 1):
+                        return tile_index + 1
+                if j > 0 and self.is_white_tile(tile_index - grid_width):
+                        return tile_index - grid_width
+                if j < grid_height - 1 and self.is_white_tile(tile_index + grid_width):
+                        return tile_index + grid_width
+                return -1
+
+        def get_current_move_step_size(self):
+                if not self.is_tile_moving():
+                        return 0
+                (progress, tile_index, target_tile_index) = self.current_movement
+                grid_width = self.grid_size[0]
+                (tile_width, tile_height) = self.tile_size
+                if tile_index == target_tile_index - 1:
+                        return tile_width/10
+                if tile_index == target_tile_index + 1:
+                        return -tile_width/10
+                if tile_index == target_tile_index - grid_width:
+                        return tile_height/10
+                if tile_index == target_tile_index + grid_width:
+                        return -tile_height/10
+
+        def get_current_move_state_for_tile(self, tile_index_to_check):
+                if not self.is_tile_moving() :
+                        return (0, 0)
+                (progress, tile_index, target_tile_index) = self.current_movement
+                if tile_index != tile_index_to_check:
+                        return (0, 0)
+                grid_width = self.grid_size[0]
+                if tile_index == target_tile_index - 1 or tile_index == target_tile_index + 1:
+                        return (progress, 0)
+                if tile_index == target_tile_index - grid_width or tile_index == target_tile_index + grid_width:
+                        return (0, progress)
+                return (0, 0)
+
+        def start_moving(self, tile_index, target_tile_index):
+                if self.is_game_solved():
+                        return
+                if self.start_ticks == 0:
+                        self.start_ticks = pygame.time.get_ticks()
+                self.move_count = self.move_count + 1
+                first_progress = 1 if tile_index < target_tile_index else -1
+                self.current_movement = (first_progress, tile_index, target_tile_index)
+
+        def increment_progress_if_needed(self):
+                if not self.is_tile_moving():
+                        return
+                (progress, tile_index, target_tile_index) = self.current_movement
+                new_progress = progress + self.get_current_move_step_size()
+                (tile_width, tile_height) = self.tile_size
+                grid_width = self.grid_size[0]
+                movement_completed = \
+                        (tile_index == target_tile_index - 1 and new_progress >= tile_width) \
+                        or (tile_index == target_tile_index + 1 and new_progress <= -tile_width) \
+                        or (tile_index == target_tile_index - grid_width and new_progress >= tile_height) \
+                        or (tile_index == target_tile_index + grid_width and new_progress <= -tile_height)
+                if movement_completed:
+                        self.grid_size
+                        self.current_array[target_tile_index] = self.current_array[tile_index]
+                        self.current_array[tile_index] = len(self.current_array) - 1
+                        self.current_movement = (0, 0, 0)
+                else:
+                        self.current_movement = (new_progress, tile_index, target_tile_index)
+
+        def get_tile_info_grid(self):
+                (tile_width, tile_height) = self.tile_size
+                result = []
+                for index, tile_value in enumerate(self.current_array):
+                        if self.is_white_tile(index) and not self.is_game_solved():
+                                continue
+                        
+                        (x_position_on_screen, y_position_on_screen) = self.get_coordinates_from_index(index)
+                        (x_move_value, y_move_value) = self.get_current_move_state_for_tile(index)
+                        tile_coordinates = (x_position_on_screen * tile_width + x_move_value, y_position_on_screen * tile_height + y_move_value)
+                        
+                        (x_position_on_image, y_position_on_image) = self.get_coordinates_from_index(tile_value)
+                        tile_size_square_to_display = (x_position_on_image * tile_width, y_position_on_image * tile_height, tile_width, tile_height)
+                        
+                        text = (str(tile_value + 1)) if self.is_showing_figures else ''
+                        text_center_coordinates = (x_position_on_screen * tile_width + x_move_value + tile_width/2, y_position_on_screen * tile_height + y_move_value + tile_height/2)
+
+                        result.append((tile_coordinates, tile_size_square_to_display, text, text_center_coordinates))
+                return result
+
+        def get_code_for_click(self, pos):
+                for handler in self.click_handler_data:
+                        (x_start, x_end, y_start, y_end, code) = handler
+                        if pos[0] > x_start and pos[0] < x_end and pos[1] > y_start and pos[1] < y_end:
+                                return code
+                return 'none'
+
+        def handle_click(self, pos):
+                handler_code = self.get_code_for_click(pos)
+                if handler_code == 'select_tile':
+                        self.move_tile_if_possible(pos)
+                if handler_code == 'first_button':
+                        if self.is_game_solved():
+                                self.prepare_for_leaving()
+                        else:
+                                self.start_showing_hint()
+                elif handler_code == 'second_button':
+                        if self.is_game_solved():
+                                self.shuffle()
+                        else:
+                                self.start_showing_figures()
+                elif handler_code == 'show_score':
+                        self.switch_showing_score()
+                elif handler_code == 'show_time':
+                        self.switch_showing_time()
+                elif handler_code == 'background_white':
+                        self.select_background_color(white)
+                elif handler_code == 'background_black':
+                        self.select_background_color(black)
+                elif handler_code == 'background_red':
+                        self.select_background_color(red)
+                elif handler_code == 'background_blue':
+                        self.select_background_color(blue)
+                elif handler_code == 'background_green':
+                        self.select_background_color(green)
+        
+        def prepare_for_leaving(self):
+                self.is_game_leaving = True
+
+        def should_leave_game(self):
+                # TODO : dealloc / deactivate params if needed
+                return self.is_game_leaving
+
+        def get_code_for_key(self, key):
+                for handler in self.shortcut_handler_data:
+                        (key_id, code) = handler
+                        if key == key_id:
+                                return code
+                return 'none'
+
+        def handle_shortcut(self, key):
+                handler_code = self.get_code_for_key(key)
+                if handler_code == 'rotate_chrono':
+                       self.rotate_if_possible(True)
+                elif handler_code == 'rotate_trigo':
+                       self.rotate_if_possible(False)
+                elif handler_code == 'move_left':
+                       self.move_with_direction_if_possible(0)
+                elif handler_code == 'move_right':
+                       self.move_with_direction_if_possible(1)
+                elif handler_code == 'move_down':
+                       self.move_with_direction_if_possible(2)
+                elif handler_code == 'move_up':
+                       self.move_with_direction_if_possible(3)
+                elif handler_code == 'solve_algo':
+                       print('solver not ready yet') #(tile, targetTile) = getNextMove(currentArray, grid_width, grid_height)
+                elif handler_code == 'solve_brute':
+                       print('brute force solver not ready yet') # (tile, targetTile) = solveBruteForce(currentArray, grid_width, grid_height)'''
+
 # TODO : factorizer les méthodes get UI (tap handler), les variables d'état (dans les classes), ne garder que l'essentiel (ecran, loop)
 def playGame():
         pygame.init()
         ecran = pygame.display.set_mode((MAX_WIDTH, MAX_HEIGHT))
-
-        imageList = getAllImages(ecran)
-        firstListIndex = 0
-        game_started = False
-        grid_width = 3
-        grid_height = 3
-        imageIndex = 0
+        #BIG_FONT = pygame.font.SysFont('arial', 50, False, False)
+        #SMALL_FONT = pygame.font.SysFont('arial', 20, False, False)
+        
+        main_view_model = ImagesViewModel((MAX_WIDTH - INTERFACE_BIG_WIDTH, MAX_HEIGHT), (3, 4))
         
         pygame.display.flip()
         loop = True
         
         while loop:
-                start_game = False
                 for event in pygame.event.get():
-                        if game_started:
-                                tile = -1
-                                targetTile = -1
-                                if currentMovement[0] != 0:
+                        if main_view_model.is_game_running():
+                                if game_view_model.is_tile_moving():
                                         continue
                                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                                        pos = pygame.mouse.get_pos()
-                                        tile = getTileCoordinate(pos[0], pos[1], tileWidth, tileHeight, grid_width, grid_height)
-                                        targetTile = canMoveTo(currentArray, tile, grid_width, grid_height)
-                                        if pos[0] > ecran.get_width() - 100 and pos[0] < ecran.get_width() and pos[1] > 0 and pos[1] < ecran.get_height()/5:
-                                                if solved(currentArray):
-                                                        ecran = pygame.display.set_mode((MAX_WIDTH, MAX_HEIGHT))
-                                                        game_started = False
-                                                else:
-                                                        showing_hint = True
-                                        if pos[0] > ecran.get_width() - 100 and pos[0] < ecran.get_width() and pos[1] > ecran.get_height()/5 and pos[1] < 2*ecran.get_height()/5:
-                                                if solved(currentArray):
-                                                        start_ticks = 0
-                                                        final_time = 0
-                                                        seconds = 0
-                                                        move_count = 0        
-                                                        currentArray = getRandomArray(grid_width, grid_height)
-                                                        currentMovement = (0, 0, 0)
-                                                else:
-                                                        showing_figures = True
-                                        if pos[0] > ecran.get_width() - 100 and pos[0] < ecran.get_width() and pos[1] > 2*ecran.get_height()/5 and pos[1] < 3*ecran.get_height()/5:
-                                                showing_score = not showing_score
-                                        if pos[0] > ecran.get_width() - 100 and pos[0] < ecran.get_width() and pos[1] > 3*ecran.get_height()/5 and pos[1] < 4*ecran.get_height()/5:
-                                                showing_time = not showing_time
-                                        if pos[0] > ecran.get_width() - 100 and pos[0] < ecran.get_width() and pos[1] > 4*ecran.get_height()/5 and pos[1] < 21*ecran.get_height()/25:
-                                                background_color = white
-                                        if pos[0] > ecran.get_width() - 100 and pos[0] < ecran.get_width() and pos[1] > 21*ecran.get_height()/25 and pos[1] < 22*ecran.get_height()/25:
-                                                background_color = black
-                                        if pos[0] > ecran.get_width() - 100 and pos[0] < ecran.get_width() and pos[1] > 22*ecran.get_height()/25 and pos[1] < 23*ecran.get_height()/25:
-                                                background_color = red
-                                        if pos[0] > ecran.get_width() - 100 and pos[0] < ecran.get_width() and pos[1] > 23*ecran.get_height()/25 and pos[1] < 24*ecran.get_height()/25:
-                                                background_color = blue
-                                        if pos[0] > ecran.get_width() - 100 and pos[0] < ecran.get_width() and pos[1] > 24*ecran.get_height()/25 and pos[1] < ecran.get_height():
-                                                background_color = green
+                                        game_view_model.handle_click(pygame.mouse.get_pos())
                                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                                        showing_hint = False
-                                        showing_figures = False
-                                '''if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
-                                        (tile, targetTile) = getNextMove(currentArray, grid_width, grid_height)
-                                if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
-                                        (tile, targetTile) = solveBruteForce(currentArray, grid_width, grid_height)'''
-                                if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                                        (tile, targetTile) = rotate(currentArray, 0, len(currentArray)-1, grid_width, grid_height, True)
-                                if event.type == pygame.KEYDOWN and event.key == pygame.K_t:
-                                        (tile, targetTile) = rotate(currentArray, 0, len(currentArray)-1, grid_width, grid_height, False)
-                                if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-                                        (tile, targetTile) = autoMoveTarget(currentArray, 0, grid_width, grid_height)
-                                if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-                                        (tile, targetTile) = autoMoveTarget(currentArray, 1, grid_width, grid_height)
-                                if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
-                                        (tile, targetTile) = autoMoveTarget(currentArray, 2, grid_width, grid_height)
-                                if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                                        (tile, targetTile) = autoMoveTarget(currentArray, 3, grid_width, grid_height)
-                                        
-                                if targetTile != -1 and not solved(currentArray) :
-                                        if start_ticks == 0:
-                                                start_ticks = pygame.time.get_ticks()
-                                        move_count = move_count + 1
-                                        firstProgress = 1 if tile < targetTile else -1
-                                        currentMovement = (firstProgress, tile, targetTile)
+                                        game_view_model.stop_showing_hint()
+                                        game_view_model.stop_showing_figures()
+                                if event.type == pygame.KEYDOWN:
+                                        game_view_model.handle_shortcut(event.key)
 
                         else: 
                                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 4:
-                                        firstListIndex = firstListIndex - 3 if firstListIndex - 3 >= 0 else 0
+                                        main_view_model.scroll_up()
                                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 5:
-                                        firstListIndex = firstListIndex + 3 if firstListIndex + 12 < len(imageList) else firstListIndex
+                                        main_view_model.scroll_down()
                                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                                        pos = pygame.mouse.get_pos()
-                                        if pos[0] > 0 and pos[0] < 3*ecran.get_width()/4 and pos[1] > 0 and pos[1] < ecran.get_height():
-                                                index_x = int(pos[0]) // int(ecran.get_width()/4)
-                                                index_y = int(pos[1]) // int(ecran.get_height()/4)
-                                                if index_x + 3 * index_y + firstListIndex < len(imageList):
-                                                        imageIndex = index_x + 3 * index_y + firstListIndex
-                                        if pos[0] > 3*ecran.get_width()/4 and pos[0] < 7*ecran.get_width()/8 and pos[1] > 0 and pos[1] < ecran.get_height()/3:
-                                                grid_width = grid_width - 1 if grid_width > 2 else grid_width
-                                        if pos[0] > 7*ecran.get_width()/8 and pos[0] < ecran.get_width() and pos[1] > 0 and pos[1] < ecran.get_height()/3:
-                                                grid_width = grid_width + 1 if grid_width < 20 else grid_width
-                                        if pos[0] > 3*ecran.get_width()/4 and pos[0] < 7*ecran.get_width()/8 and pos[1] > ecran.get_height()/3 and pos[1] < 2*ecran.get_height()/3:
-                                                grid_height = grid_height - 1 if grid_height > 2 else grid_height
-                                        if pos[0] > 7*ecran.get_width()/8 and pos[0] < ecran.get_width() and pos[1] > ecran.get_height()/3 and pos[1] < 2*ecran.get_height()/3:
-                                                grid_height = grid_height + 1 if grid_height < 20 else grid_height
-                                        if pos[0] > 3*ecran.get_width()/4 and pos[0] < ecran.get_width() and pos[1] > 2*ecran.get_height()/3 and pos[1] < ecran.get_height():
-                                                start_game = True
+                                        main_view_model.handle_click(pygame.mouse.get_pos())
                         if(event.type==pygame.QUIT or (event.type==pygame.KEYDOWN and event.key==pygame.K_ESCAPE)): 
                                         loop = False
 
                 ecran.fill(white)
                                 
-                if game_started:
-                        ecran.fill(background_color, (0, 0, image.get_width(), image.get_height()))
-                        if final_time == 0 and solved(currentArray) and start_ticks>0:
-                                final_time = pygame.time.get_ticks()-start_ticks
-                        time_to_display = (final_time if solved(currentArray) else (pygame.time.get_ticks()-start_ticks if start_ticks>0 else 0)) // 1000
-                        display_game_interface(ecran, showing_score, move_count, showing_time, time_to_display, solved(currentArray))
-                        if showing_hint:
-                                showHint(ecran, image)
+                if main_view_model.is_game_running():
+                        if game_view_model.should_leave_game():
+                                ecran = pygame.display.set_mode((MAX_WIDTH, MAX_HEIGHT))
+                                main_view_model.quit_game()
                         else:
-                                newProgress = displayAllTiles(ecran, image, currentArray, tileWidth, tileHeight, grid_width, grid_height, showing_figures, currentMovement)
-                                if currentMovement[0] != 0:
-                                        currentMovement = (newProgress, currentMovement[1], currentMovement[2])
-                                        if isMovementOver(currentMovement, tileWidth, tileHeight, grid_width):
-                                                currentArray[currentMovement[2]] = currentArray[currentMovement[1]]
-                                                currentArray[currentMovement[1]] = (grid_width * grid_height) - 1
-                                                currentMovement = (0,0,0)
+                                ecran.fill(game_view_model.get_background_color(), game_view_model.get_game_screen_square())
+                                game_view_model.check_if_grid_is_solved()
+                                display_game_interface(ecran, game_view_model.should_show_score(), game_view_model.get_move_count(), game_view_model.should_show_time(), game_view_model.get_time_to_display(), game_view_model.is_game_solved())
+                                if game_view_model.should_show_hint() or game_view_model.is_game_solved():
+                                        show_fullscreen_image(ecran, game_view_model.get_full_screen_image())
+                                else:
+                                        display_all_tiles(ecran, game_view_model.get_full_screen_image(), game_view_model.get_tile_info_grid())
+                                        game_view_model.increment_progress_if_needed()
 
                 else:
-                        if start_game:
-                                image = pygame.image.load('images/image' + str(imageIndex+1) + '.jpg')
-                                image = pygame.transform.scale(image, getImageSize(image.get_width(), image.get_height(), grid_width, grid_height))
-                                tileWidth = image.get_width()/grid_width
-                                tileHeight = image.get_height()/grid_height
-                                ecran = pygame.display.set_mode((image.get_width() + 100, image.get_height()))
-
-                                background_color = white
-                                start_ticks = 0
-                                final_time = 0
-                                seconds = 0
-                                move_count = 0
-                                showing_hint = False
-                                showing_figures = False
-                                showing_score = True
-                                showing_time = True
-        
-                                currentArray = getRandomArray(grid_width, grid_height)
-                                currentMovement = (0, 0, 0)
-                                game_started = True
+                        if main_view_model.should_start_game():
+                                game_view_model = GameViewModel(main_view_model.get_selected_image_index(), main_view_model.get_grid_size())
+                                ecran = pygame.display.set_mode(game_view_model.get_game_screen_size())
+                                
+                                main_view_model.start_game()
                         else:
-                                for i in range(3):
-                                        for j in range(4):
-                                                if i+3*j + firstListIndex > len(imageList)-1:
-                                                        continue
-                                                tempImage = imageList[i+3*j + firstListIndex]
-                                                ecran.blit(tempImage, (i*ecran.get_width()/4,j*ecran.get_height()/4), (0,0,ecran.get_width()/4,ecran.get_height()/4))
-                                display_start_interface(ecran, imageIndex - firstListIndex, grid_width, grid_height)
+                                display_all_images_to_select(ecran, main_view_model.get_images_displayed_list(), main_view_model.get_image_list_size())
+                                display_start_interface(ecran, main_view_model.get_selected_image_position(), main_view_model.get_grid_size(), main_view_model.get_image_list_size())
                 pygame.display.update()
         pygame.quit()
 
