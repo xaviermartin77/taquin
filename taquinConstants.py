@@ -1,0 +1,10 @@
+
+MAX_WIDTH = 1900
+MAX_HEIGHT = 960
+INTERFACE_BIG_WIDTH = 400
+INTERFACE_WIDTH = 100
+white = (255,255,255)
+black = (0,0,0)
+red = (255,0,0)
+blue = (0,0,255)
+green = (0,255,0)
