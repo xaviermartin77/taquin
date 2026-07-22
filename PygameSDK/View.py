@@ -28,6 +28,7 @@ class View:
         
     def generate_elements(self):
         self.shortcuts = []
+        self.mouse_actions = []
         self.buttons = []
         self.labels = []
         self.font = pygame.font.SysFont(self.font_info[0], self.font_info[1], False, False)
@@ -37,7 +38,7 @@ class View:
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 self.should_exit = True
-            if event.type==pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:
                 for shortcut in self.shortcuts:
                     if shortcut.is_pressed(event.key):
                         self.view_model.handle_code(shortcut.handler_code)
@@ -46,6 +47,10 @@ class View:
                 for button in self.buttons:
                     if button.is_pushed(pos):
                         self.view_model.handle_code(button.handler_code)
+            if (event.type == pygame.MOUSEBUTTONDOWN and event.button != 1) or (event.type == pygame.MOUSEBUTTONUP):
+                for mouse_action in self.mouse_actions:
+                    if mouse_action.is_triggered(event):
+                        self.view_model.handle_code(mouse_action.handler_code)
                         
     def update_if_needed(self):
         if self.view_model.should_update:
