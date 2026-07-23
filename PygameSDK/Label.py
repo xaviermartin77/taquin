@@ -1,22 +1,22 @@
-import math
 import pygame
 from pygame import Rect
 
 class Label:
-    def __init__(self, bkg, border, textclr, txt, ft, rect, m_text_lines = False):
+    def __init__(self, coord, bkg, border, text_info, m_text_lines = False):
         self.background_color = bkg
         self.border_color = border
-        self.text_color = textclr
-        self.text = txt
-        self.coordinates = rect
+        if text_info != None:
+            (self.text, self.text_color, self.font) = text_info
+        else:
+            self.text = None
+        self.coordinates = coord
         self.multiple_text_lines = m_text_lines
-        self.font = ft
         
     def display(self, screen):
         pygame.draw.rect(screen, self.background_color, self.coordinates)
         if self.border_color != None:
             self.display_border(screen)
-        if self.text != None and self.font != None:
+        if self.text != None:
             self.show_text(screen)
             
     def display_border(self, screen):

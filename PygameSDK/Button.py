@@ -3,7 +3,15 @@ from pygame import Rect
 from PygameSDK.Label import *
 
 class Button(Label):
-    def __init__(self, bkg, border, textclr, text, font, coord, code):
+    def __init__(self, coord, bkg, border, text_info, code):
+        super().__init__(coord, bkg, border, text_info)
+        self.handler_code = code
+        
+    def is_pushed(self, pos):
+        return pos[0] > self.coordinates.left and pos[0] < self.coordinates.right and pos[1] > self.coordinates.top and pos[1] < self.coordinates.bottom
+
+class ImageButton(ImageView):
+    def __init__(self, coord, bkg, border, text_info, code):
         super().__init__(bkg, border, textclr, text, font, coord)
         self.handler_code = code
         
@@ -11,8 +19,8 @@ class Button(Label):
         return pos[0] > self.coordinates.left and pos[0] < self.coordinates.right and pos[1] > self.coordinates.top and pos[1] < self.coordinates.bottom
         
 class TriangleButton(Button):
-    def __init__(self, bkg, border, coord, code, orcode):
-        super().__init__(bkg, border, None, None, None, coord, code)
+    def __init__(self, coord, bkg, border, code, orcode):
+        super().__init__(coord, bkg, border, None, code)
         self.orientation = orcode
             
     def is_pushed(self, pos):
