@@ -1,8 +1,4 @@
-# Python program to read 
-# image using PIL module 
-  
-# importing PIL
-# from PIL import Image, ImageDraw
+'''
 import pygame
 from pygame.locals import *
 from taquinConstants import *
@@ -75,3 +71,32 @@ def playGame():
 
 playGame()
 
+'''
+from TaquinImagesView import *
+from PygameSDK.Game import *
+
+
+view_model = TaquinImagesViewModel()
+screen_size = (1500, 1000)
+view = TaquinImagesView(view_model, screen_size)
+game = Game()
+game.start_game(view)
+
+
+'''
+
+TODO
+1) image list
+créer le VM et la view, récupérer toutes les règles métiers dans le code (not is_game_running)
+  inputs : scroll_up, scroll_down, view_model.handle_click
+  display : display_all_images_to_select, display_start_interface
+créer les entity : image
+mettre à jour le SDK : scroll, affichage d'image -> Done
+virer constants
+
+2) game grid
+créer le VM et la view, gérer la transition, récupérer les règles métiers
+créer les entity : game grid
+mettre à jour le SDK : long press -> Done
+vivrer les utils
+'''

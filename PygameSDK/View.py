@@ -3,7 +3,7 @@ import pygame
 from PygameSDK.Color import *
 
 class View:
-    def __init__(self, v_m, size, f_i = ('arial', 30)):
+    def __init__(self, v_m, size, f_i = [('arial', 30)]):
         self.view_model = v_m
         
         self.size = size
@@ -15,7 +15,8 @@ class View:
         self.buttons = []
         self.labels = []
         
-        self.font_info = f_i
+        self.font_infos = f_i
+        self.fonts = []
         
     def setup_screen(self):
         self.screen = pygame.display.set_mode(self.size)
@@ -31,7 +32,8 @@ class View:
         self.mouse_actions = []
         self.buttons = []
         self.labels = []
-        self.font = pygame.font.SysFont(self.font_info[0], self.font_info[1], False, False)
+        for font_info in self.font_infos:
+            self.fonts.append(pygame.font.SysFont(font_info[0], font_info[1], False, False))
         # Generate UI elements here
     
     def check_inputs(self):

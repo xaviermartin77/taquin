@@ -20,7 +20,7 @@ class Game:
                 update_screen(new_view)
         pygame.quit()
         
-    def update_screen(self,view):
+    def update_screen(self, view):
         self.view = view
         
         self.view.setup_screen()

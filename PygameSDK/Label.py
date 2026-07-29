@@ -13,7 +13,8 @@ class Label:
         self.multiple_text_lines = m_text_lines
         
     def display(self, screen):
-        pygame.draw.rect(screen, self.background_color, self.coordinates)
+        if self.background_color != None:
+            pygame.draw.rect(screen, self.background_color, self.coordinates)
         if self.border_color != None:
             self.display_border(screen)
         if self.text != None:

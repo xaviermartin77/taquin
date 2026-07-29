@@ -5,7 +5,7 @@ class MouseHandler():
         self.event_name = name
         self.handler_code = code
         
-    def is_pressed(self, event):
+    def is_triggered(self, event):
         if self.event_name == 'scroll_up' and event.type == pygame.MOUSEBUTTONDOWN and event.button == 4:
             return True
         if self.event_name == 'scroll_down' and event.type == pygame.MOUSEBUTTONDOWN and event.button == 5:
