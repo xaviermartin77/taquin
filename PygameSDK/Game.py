@@ -8,20 +8,21 @@ class Game:
         loop = True
         
         pygame.init()
-        self.update_screen(view)
+        self.display_screen(view)
         
         while loop:
             self.view.check_inputs()
             if self.view.should_exit:
                 loop = False
-            self.view.update_if_needed()
-            new_view = self.view.root_to_view()
+            new_view = self.view.navigate_to_view()
             if new_view != None:
-                update_screen(new_view)
+                self.display_screen(new_view)
+            else:
+                self.view.update_if_needed()
         pygame.quit()
         
-    def update_screen(self, view):
+    def display_screen(self, view):
         self.view = view
         
-        self.view.setup_screen()
+        self.view.setup_view()
         

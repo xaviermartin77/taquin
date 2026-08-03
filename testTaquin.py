@@ -73,6 +73,7 @@ playGame()
 
 '''
 from TaquinImagesView import *
+from TaquinImagesViewModel import *
 from PygameSDK.Game import *
 
 
@@ -86,17 +87,16 @@ game.start_game(view)
 '''
 
 TODO
-1) image list
-créer le VM et la view, récupérer toutes les règles métiers dans le code (not is_game_running)
-  inputs : scroll_up, scroll_down, view_model.handle_click
-  display : display_all_images_to_select, display_start_interface
-créer les entity : image
-mettre à jour le SDK : scroll, affichage d'image -> Done
-virer constants
+1) image list -> Done
 
 2) game grid
 créer le VM et la view, gérer la transition, récupérer les règles métiers
-créer les entity : game grid
-mettre à jour le SDK : long press -> Done
-vivrer les utils
+  interface : background color (merge), show/hide score + time, show/hide hint + figures, shuffle, return
+  grid : move tile (4 directions), rotate
+  display : display_game_interface, show_fullscreen_image, display_all_tiles (warning : animation)
+créer les entity : game grid -> Done (à améliorer)
+mettre à jour le SDK : long press -> Done, animations
+
+3) clean
+virer les utils, les constants, les methodes UI, les VMs, garder uniquement le solver
 '''

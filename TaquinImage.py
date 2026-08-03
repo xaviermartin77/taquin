@@ -1,4 +1,5 @@
 import os
+from PygameSDK.ImageView import *
 
 class TaquinImageProvider:
     def generate_default_images(self):
@@ -21,10 +22,13 @@ class TaquinImageProvider:
 class TaquinImage:
     def __init__(self, path):
         self.file_path = path
+        self.image_provider = ImageRessourceProvider()
         self.image_ressource = None
+        self.image_size = None
         
-    def load_image_ressource(self):
-        self.image_ressource = ressource
-        
+    def load_image_ressource(self, view_size):
+        (self.image_ressource, self.image_size) = self.image_provider.get_image_surface(self.file_path, view_size, True)
+    
     def unload_image_ressource(self):
         self.image_ressource = None
+        self.image_size = None

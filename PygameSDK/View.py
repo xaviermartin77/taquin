@@ -3,12 +3,13 @@ import pygame
 from PygameSDK.Color import *
 
 class View:
-    def __init__(self, v_m, size, f_i = [('arial', 30)]):
+    def __init__(self, v_m, size, f_i = [('arial', 30)], bkg_code = 'w'):
         self.view_model = v_m
         
         self.size = size
         
         self.screen = None
+        self.background_color = Color(bkg_code)
         
         self.should_exit = False
         
@@ -18,22 +19,23 @@ class View:
         self.font_infos = f_i
         self.fonts = []
         
-    def setup_screen(self):
+    def setup_view(self):
         self.screen = pygame.display.set_mode(self.size)
+        for font_info in self.font_infos:
+            self.fonts.append(pygame.font.SysFont(font_info[0], font_info[1], False, False))
+        self.view_model.next_view = None
         
         self.generate_elements()
         self.display_view()
         
-    def root_to_view(self):
-        return None
+    def navigate_to_view(self):
+        return self.view_model.next_view
         
     def generate_elements(self):
         self.shortcuts = []
         self.mouse_actions = []
         self.buttons = []
         self.labels = []
-        for font_info in self.font_infos:
-            self.fonts.append(pygame.font.SysFont(font_info[0], font_info[1], False, False))
         # Generate UI elements here
     
     def check_inputs(self):
@@ -61,7 +63,7 @@ class View:
             self.view_model.updated()
             
     def display_view(self):
-        self.screen.fill(Color.white)
+        self.screen.fill(self.background_color.get_color_value())
         self.display_elements()
         pygame.display.update()
     

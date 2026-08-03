@@ -1,5 +1,7 @@
 from PygameSDK.ViewModel import *
 from TaquinImage import *
+from TaquinGridView import *
+from TaquinGridViewModel import *
 
 class TaquinImagesViewModel(ViewModel):
     def __init__(self, grid_dim = (3, 4)):
@@ -35,7 +37,7 @@ class TaquinImagesViewModel(ViewModel):
             selected_index = int(code.split('select_index_', 1)[1])
             self.select_image(selected_index)
         if code == 'start_game':
-            self.root_to_game_view()
+            self.switch_to_game_view()
     
     # action handlers
     def decrement_game_width(self):
@@ -70,13 +72,14 @@ class TaquinImagesViewModel(ViewModel):
             self.selected_image_index = selected_index
             self.should_update = True
     
-    def root_to_game_view(self):
-        print('starting game')
-        print('chosen game width : ' + str(self.game_width))
-        print('chosen game height : ' + str(self.game_height))
+    def switch_to_game_view(self):
+        game_size = (self.game_width, self.game_height)
+        view_model = TaquinGridViewModel(game_size)
+        
         selected_image = self.image_list[self.selected_image_index]
-        print('image selected : ' + selected_image.file_path)
-        print('switching to new view')
+        selected_image.load_image_ressource((1500, 1100))
+        
+        self.next_view = TaquinGridView(view_model, selected_image.image_size, selected_image)
 
     # data providers for UI
     def should_display_minus_button_for_width(self):

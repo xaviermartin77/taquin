@@ -9,7 +9,7 @@ class ImageRessourceProvider:
             adapted_surface = pygame.transform.scale(surface, self.get_image_adjusted_size(surface.get_size(), rect_size))
         else:
             adapted_surface = pygame.transform.scale(surface, self.coordinates.size)
-        return adapted_surface
+        return (adapted_surface, adapted_surface.get_size())
             
     def get_image_adjusted_size(self, image_size, rect_size):
         (image_width, image_height) = image_size
@@ -39,7 +39,7 @@ class ImageView(Label):
             
     def display_image(self, screen):
         if self.image_path != None:
-            image_surface = self.image_provider.get_image_surface(self.image_path, self.coordinates.size, self.keep_image_ratio)
+            image_surface = self.image_provider.get_image_surface(self.image_path, self.coordinates.size, self.keep_image_ratio)[0]
             screen.blit(image_surface, self.coordinates)
         elif self.image_surface != None:
             screen.blit(self.image_surface, self.coordinates, self.image_zone)
