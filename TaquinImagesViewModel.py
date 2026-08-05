@@ -77,9 +77,11 @@ class TaquinImagesViewModel(ViewModel):
         view_model = TaquinGridViewModel(game_size)
         
         selected_image = self.image_list[self.selected_image_index]
-        selected_image.load_image_ressource((1500, 1100))
+        selected_image.load_image_ressource((1400 - 1400%self.game_width, 1000 - 1000%self.game_height))
         
-        self.next_view = TaquinGridView(view_model, selected_image.image_size, selected_image)
+        screen_size = (selected_image.image_size[0] + 100, selected_image.image_size[1])
+        
+        self.next_view = TaquinGridView(view_model, screen_size, selected_image)
 
     # data providers for UI
     def should_display_minus_button_for_width(self):

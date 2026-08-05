@@ -24,10 +24,7 @@ class View:
         for font_info in self.font_infos:
             self.fonts.append(pygame.font.SysFont(font_info[0], font_info[1], False, False))
         self.view_model.next_view = None
-        
-        self.generate_elements()
-        self.display_view()
-        
+    
     def navigate_to_view(self):
         return self.view_model.next_view
         

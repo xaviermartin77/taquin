@@ -15,7 +15,7 @@ class TaquinGrid:
         for index, element in enumerate(self.current_array):
             if element == (self.grid_size[0] * self.grid_size[1] - 1):
                 continue
-            value_text = str(element) if include_text else None
+            value_text = str(element + 1) if include_text else None
             result.append((index, self.get_coordinates(index), self.get_coordinates(element), value_text))
         return result
     
