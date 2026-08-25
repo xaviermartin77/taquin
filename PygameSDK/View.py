@@ -36,9 +36,13 @@ class View:
         # Generate UI elements here
     
     def check_inputs(self):
+        if self.view_model.is_animating():
+            self.view_model.update_animation()
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 self.should_exit = True
+            if self.view_model.is_animating():
+                continue
             if event.type == pygame.KEYDOWN:
                 for shortcut in self.shortcuts:
                     if shortcut.is_pressed(event.key):

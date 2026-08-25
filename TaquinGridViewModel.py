@@ -10,6 +10,7 @@ class TaquinGridViewModel(ViewModel):
         
         self.colors = ['w', 'n', 'r', 'b', 'v']
         self.background_color = Color('w')
+        self.animation_frame_count = 30
         
         self.move_count = 0
         
@@ -17,6 +18,15 @@ class TaquinGridViewModel(ViewModel):
         self.show_figures = False
         self.show_time = False
         self.show_score = False
+        
+    def update_animation(self):
+        (index, move_code, animation_progress) = self.current_animation
+        if animation_progress < self.animation_frame_count:
+            self.current_animation = (index, move_code, animation_progress + 1)
+        else:
+           self.current_animation = None
+           self.current_grid.complete_move(move_code)
+        self.should_update = True
     
     # superclass methods
     def handle_code(self, code):
@@ -44,9 +54,10 @@ class TaquinGridViewModel(ViewModel):
     
     # action handlers
     def move_tile(self, tile_index):
-        can_move = self.current_grid.move_tile_if_possible(tile_index)
-        if can_move:
+        possible_move = self.current_grid.get_tile_move(tile_index)
+        if possible_move != None:
             self.move_count += 1
+            self.current_animation = possible_move
             self.should_update = True
     
     def shuffle_grid(self):
@@ -117,6 +128,23 @@ class TaquinGridViewModel(ViewModel):
         return str(self.move_count) if self.show_score else 'Score'
     
     def get_all_tiles_infos(self):
-        return self.current_grid.get_tiles_infos(self.show_figures)
-                
+        grid_tile_infos = self.current_grid.get_tiles_infos()
+        result = []
+        for tile_info in grid_tile_infos:
+            (index, element, index_coord, element_coord) = tile_info
+            value_text = str(element + 1) if self.show_figures else None
+            move_info = None
+            if self.current_animation != None:
+                (moving_index, move_code, animation_progress) = self.current_animation
+                if moving_index == index:
+                    if move_code == 0:
+                        move_info = (0, -1 * animation_progress/self.animation_frame_count)
+                    if move_code == 1:
+                        move_info = (0, animation_progress/self.animation_frame_count)
+                    if move_code == 2:
+                        move_info = (-1 *animation_progress/self.animation_frame_count, 0)
+                    if move_code == 3:
+                        move_info = (animation_progress/self.animation_frame_count, 0)
+            result.append((index, (index_coord, move_info), element_coord, value_text))
+        return result
                 

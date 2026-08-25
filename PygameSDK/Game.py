@@ -14,6 +14,7 @@ class Game:
             self.view.check_inputs()
             if self.view.should_exit:
                 loop = False
+                continue
             new_view = self.view.navigate_to_view()
             if new_view != None:
                 self.display_screen(new_view)

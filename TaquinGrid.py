@@ -9,29 +9,39 @@ class TaquinGrid:
     
     def get_coordinates(self, index):
         return (index % self.grid_size[0], index // self.grid_size[0])
+        
+    def get_grid_length(self):
+        return self.grid_size[0] * self.grid_size[1]
+        
+    def get_blank_tile_value(self):
+        return self.grid_size[0] * self.grid_size[1] - 1
+        
+    def get_blank_tile_index(self):
+        return self.current_array.index(self.get_blank_tile_value())
+        
+    def get_blank_tile_coordinates(self):
+        return self.get_coordinates(self.get_blank_tile_index())
     
-    def get_tiles_infos(self, include_text):
+    def get_tiles_infos(self):
         result = []
         for index, element in enumerate(self.current_array):
-            if element == (self.grid_size[0] * self.grid_size[1] - 1):
+            if element == self.get_blank_tile_value():
                 continue
-            value_text = str(element + 1) if include_text else None
-            result.append((index, self.get_coordinates(index), self.get_coordinates(element), value_text))
+            result.append((index, element, self.get_coordinates(index), self.get_coordinates(element)))
         return result
     
     def shuffle(self):
-        self.current_array = list(range(self.grid_size[0] * self.grid_size[1]))
+        self.current_array = list(range(self.get_grid_length()))
         random.shuffle(self.current_array)
         while not self.is_solvable():
             random.shuffle(self.current_array)
     
     def is_solvable(self):
         (grid_width, grid_height) = self.grid_size
-        grid_length = len(self.current_array)
+        grid_length = self.get_grid_length()
         
         # calculating the number of moves needed to put the blank tile on the right spot
-        index_of_blank = self.current_array.index(grid_length-1)
-        (x_blank, y_blank) = (index_of_blank % grid_width, index_of_blank // grid_width)
+        (x_blank, y_blank) = self.get_blank_tile_coordinates()
         count = grid_width + grid_height - x_blank - y_blank
         
         # adding the number of switch needed to solve the grid
@@ -52,30 +62,26 @@ class TaquinGrid:
                 return False
         return True
         
-    def get_blank_tile_coordinates(self):
-        return self.get_coordinates(self.current_array.index(len(self.current_array) - 1))
-        
-    def move_tile_if_possible(self, index):
+    def get_tile_move(self, index):
         blank_tile_coord = self.get_blank_tile_coordinates()
         tile_coord = self.get_coordinates(index)
+        move_code = None
         if blank_tile_coord[0] == tile_coord[0]:
             if blank_tile_coord[1] == tile_coord[1] - 1:
-                self.move_tile(0) # up
-                return True
+                move_code = 0 # up
             if blank_tile_coord[1] == tile_coord[1] + 1:
-                self.move_tile(1) # down
-                return True
+                move_code = 1 # down
         if blank_tile_coord[1] == tile_coord[1]:
             if blank_tile_coord[0] == tile_coord[0] - 1:
-                self.move_tile(2) # left
-                return True
+                move_code = 2 # left
             if blank_tile_coord[0] == tile_coord[0] + 1:
-                self.move_tile(3) # right
-                return True
-        return False
+                move_code = 3 # right
+        if move_code != None:
+            return (index, move_code, 0)
+        return None
         
-    def move_tile(self, move_code):
-        blank_index = self.current_array.index(len(self.current_array) - 1)
+    def complete_move(self, move_code):
+        blank_index = self.get_blank_tile_index()
         grid_width = self.grid_size[0]
         if move_code == 0 and (blank_index + grid_width) < len(self.current_array):
             self.current_array[blank_index], self.current_array[blank_index + grid_width] = self.current_array[blank_index + grid_width], self.current_array[blank_index]

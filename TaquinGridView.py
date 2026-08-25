@@ -26,7 +26,7 @@ class TaquinGridView(View):
         self.buttons.append(Button(Rect(interface_start_x, self.screen_height/5, self.interface_width, self.screen_height/5), Color.white, Color.black, (self.view_model.second_button_text(), Color.black, self.fonts[1]), self.view_model.second_button_handler()))
         
         self.buttons.append(Button(Rect(interface_start_x, 2*self.screen_height/5, self.interface_width, self.screen_height/5), Color.white, Color.black, (self.view_model.time_button_text(), Color.black, self.fonts[1]), 'toggle_time_display'))
-        self.buttons.append(Button(Rect(interface_start_x, 3*self.screen_height/5, self.interface_width, self.screen_height/5), Color.white, Color.black, (self.view_model.score_button_text(), Color.black, self.fonts[1]), 'toggle_score_display'))
+        self.buttons.append(Button(Rect(interface_start_x, 3*self.screen_height/5, self.interface_width, self.screen_height/5 - 1), Color.white, Color.black, (self.view_model.score_button_text(), Color.black, self.fonts[1]), 'toggle_score_display'))
         
         for index, color_code in enumerate(self.view_model.colors):
             self.buttons.append(Button(Rect(interface_start_x, 4*self.screen_height/5 + index * self.screen_height/25, self.interface_width, self.screen_height/25), Color(color_code).get_color_value(), None, None, 'select_background_color_' + color_code))
@@ -41,7 +41,10 @@ class TaquinGridView(View):
             image_tile_width = self.image_view_width / game_width
             image_tile_height = self.screen_height / game_height
             for tile_infos in self.view_model.get_all_tiles_infos():
-                (tile_position_x, tile_position_y) = (tile_infos[1][0] * image_tile_width, tile_infos[1][1] * image_tile_height)
+                (tile_position_x, tile_position_y) = (tile_infos[1][0][0] * image_tile_width, tile_infos[1][0][1] * image_tile_height)
+                if tile_infos[1][1] != None:
+                    tile_position_x = tile_position_x + image_tile_width*tile_infos[1][1][0]
+                    tile_position_y = tile_position_y + image_tile_height*tile_infos[1][1][1]
                 tile_image_zone = (tile_infos[2][0] * image_tile_width, tile_infos[2][1] * image_tile_height, image_tile_width, image_tile_height)
                 text_info = (tile_infos[3], Color.red, self.fonts[0]) if tile_infos[3] != None else None
                 self.buttons.append(ImageButton(Rect(tile_position_x, tile_position_y, image_tile_width, image_tile_height), None, None, text_info, (None, None, self.image.image_ressource, tile_image_zone), 'click_tile_index_' + str(tile_infos[0])))
