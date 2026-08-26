@@ -66,7 +66,7 @@ class View:
     def display_view(self):
         self.screen.fill(self.background_color.get_color_value())
         self.display_elements()
-        pygame.display.update()
+        pygame.display.flip() #TODO : use pygame.display.update() with rectangles to update when SDK is ready
     
     def display_elements(self):
         for label in self.labels:

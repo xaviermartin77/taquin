@@ -1,5 +1,6 @@
 from PygameSDK.ViewModel import *
 from PygameSDK.Color import *
+from PygameSDK.Timer import *
 from TaquinGrid import *
 
 class TaquinGridViewModel(ViewModel):
@@ -13,6 +14,7 @@ class TaquinGridViewModel(ViewModel):
         self.animation_frame_count = 30
         
         self.move_count = 0
+        self.timer = Timer()
         
         self.show_hint = False
         self.show_figures = False
@@ -26,6 +28,8 @@ class TaquinGridViewModel(ViewModel):
         else:
            self.current_animation = None
            self.current_grid.complete_move(move_code)
+           if self.grid_solved():
+              self.timer.stop_timer()
         self.should_update = True
     
     # superclass methods
@@ -57,12 +61,14 @@ class TaquinGridViewModel(ViewModel):
         possible_move = self.current_grid.get_tile_move(tile_index)
         if possible_move != None:
             self.move_count += 1
+            self.timer.start_timer()
             self.current_animation = possible_move
             self.should_update = True
     
     def shuffle_grid(self):
         self.current_grid.shuffle()
         self.move_count = 0
+        self.timer.reset_timer()
         self.should_update = True
     
     def start_showing_hint(self):
@@ -100,14 +106,14 @@ class TaquinGridViewModel(ViewModel):
     
     def return_to_list_view(self):
         print('return to previous view')
-        print('needs to be set in SDK (weak ref')
+        print('needs to be set in SDK (weak ref)')
 
     # data providers for UI
     def grid_solved(self):
         return self.current_grid.solved()
         
     def get_current_time(self):
-        return 0 # use pygame.time.get_ticks() with start_time when first move starts and final_time when grid is solved
+        return self.timer.get_seconds() # no auto update, needs improvement
     
     def first_button_text(self):
         return 'Menu' if self.grid_solved() else 'Hint'
