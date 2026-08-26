@@ -105,8 +105,7 @@ class TaquinGridViewModel(ViewModel):
             self.should_update = True
     
     def return_to_list_view(self):
-        print('return to previous view')
-        print('needs to be set in SDK (weak ref)')
+        self.should_return = True
 
     # data providers for UI
     def grid_solved(self):

@@ -12,6 +12,7 @@ class View:
         self.background_color = Color(bkg_code)
         
         self.should_exit = False
+        self.previous_view = None
         
         self.buttons = []
         self.labels = []
@@ -24,9 +25,16 @@ class View:
         for font_info in self.font_infos:
             self.fonts.append(pygame.font.SysFont(font_info[0], font_info[1], False, False))
         self.view_model.next_view = None
+        self.view_model.should_update = True
     
-    def navigate_to_view(self):
+    def should_navigate(self):
+        return self.view_model.next_view != None
+    
+    def get_next_view(self):
         return self.view_model.next_view
+    
+    def should_return(self):
+        return self.view_model.should_return
         
     def generate_elements(self):
         self.shortcuts = []
