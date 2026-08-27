@@ -12,6 +12,9 @@ class TaquinGridView(View):
         self.image_view_width = self.size[0] - self.interface_width
         self.screen_height = self.size[1]
         self.image = img
+    
+    def unload_ressources(self):
+        self.image.unload_image_ressource()
         
     def generate_elements(self):
         super().generate_elements()

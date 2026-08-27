@@ -30,6 +30,7 @@ class Game:
         self.display_screen(new_view)
         
     def return_to_previous_view(self):
+        self.view.unload_ressources()
         previous_view = self.view.previous_view
         self.display_screen(previous_view)
         

@@ -45,7 +45,7 @@ class TaquinImagesView(View):
                 (image_position_x, image_position_y) = ((index % image_grid_width) * image_view_width, (index // image_grid_width) * image_view_height)
                 real_index = self.view_model.get_real_index(index)
                 border_color = Color.red if (self.view_model.selected_image_index == real_index) else None
-                self.buttons.append(ImageButton(Rect(image_position_x, image_position_y, image_view_width - 1, image_view_height - 1), Color.white, border_color, None, (image.file_path, True, None, None), 'select_index_' + str(real_index)))
+                self.buttons.append(ImageButton(Rect(image_position_x, image_position_y, image_view_width - 1, image_view_height - 1), Color.white, border_color, None, (image.file_path, False, None, None), 'select_index_' + str(real_index)))
     
     def generate_mouse_actions(self):
         self.mouse_actions.append(MouseHandler('scroll_up', 'scroll_images_up'))

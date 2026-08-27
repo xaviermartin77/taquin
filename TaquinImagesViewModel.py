@@ -77,7 +77,7 @@ class TaquinImagesViewModel(ViewModel):
         view_model = TaquinGridViewModel(game_size)
         
         selected_image = self.image_list[self.selected_image_index]
-        selected_image.load_image_ressource((1400 - 1400%self.game_width, 1000 - 1000%self.game_height))
+        selected_image.load_image_ressource((1400, 1000), game_size)
         
         screen_size = (selected_image.image_size[0] + 100, selected_image.image_size[1])
         

@@ -35,6 +35,9 @@ class View:
     
     def should_return(self):
         return self.view_model.should_return
+    
+    def unload_ressources(self):
+        print('unloading ressources')
         
     def generate_elements(self):
         self.shortcuts = []
