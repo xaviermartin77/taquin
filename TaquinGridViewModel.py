@@ -37,6 +37,12 @@ class TaquinGridViewModel(ViewModel):
         if 'click_tile_index_' in code:
             tile_index = int(code.split('click_tile_index_', 1)[1])
             self.move_tile(tile_index)
+        if 'move_grid_' in code:
+            move_code = int(code.split('move_grid_', 1)[1])
+            self.move_grid(move_code)
+        if 'rotate_grid_' in code:
+            rotate_code = int(code.split('rotate_grid_', 1)[1])
+            self.rotate_grid(rotate_code)
         if code == 'restart_game':
             self.shuffle_grid()
         if code == 'start_hint_display':
@@ -53,16 +59,38 @@ class TaquinGridViewModel(ViewModel):
         if 'select_background_color_' in code:
             color_value = code.split('select_background_color_', 1)[1]
             self.change_background_color(color_value)
+        if 'solve_algo' in code:
+            self.solved_with_algo()
+        if 'solve_bruteforce' in code:
+            self.solved_with_bruteforce()
         if code == 'end_game':
             self.return_to_list_view()
     
     # action handlers
     def move_tile(self, tile_index):
-        possible_move = self.current_grid.get_tile_move(tile_index)
-        if possible_move != None:
+        possible_move_code = self.current_grid.get_tile_move(tile_index)
+        if possible_move_code != None:
             self.move_count += 1
             self.timer.start_timer()
-            self.current_animation = possible_move
+            self.current_animation = (tile_index, possible_move_code, 0)
+            self.should_update = True
+    
+    def move_grid(self, move_code):
+        tile_to_move_index = self.current_grid.get_tile_to_move_index(move_code)
+        if tile_to_move_index != None:
+            self.move_count += 1
+            self.timer.start_timer()
+            self.current_animation = (tile_to_move_index, move_code, 0)
+            self.should_update = True
+    
+    def rotate_grid(self, rotate_code):
+        rotate_chrono = (rotate_code == 0)
+        move_pair = self.current_grid.get_rotation_move_info(rotate_chrono)
+        if move_pair != None:
+            (tile_index, move_code) = move_pair
+            self.move_count += 1
+            self.timer.start_timer()
+            self.current_animation = (tile_index, move_code, 0)
             self.should_update = True
     
     def shuffle_grid(self):
@@ -106,6 +134,12 @@ class TaquinGridViewModel(ViewModel):
     
     def return_to_list_view(self):
         self.should_return = True
+    
+    def solved_with_algo(self):
+        print('not ready yet')
+    
+    def solved_with_bruteforce(self):
+        print('not ready yet')
 
     # data providers for UI
     def grid_solved(self):

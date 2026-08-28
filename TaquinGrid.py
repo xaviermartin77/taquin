@@ -63,23 +63,67 @@ class TaquinGrid:
         return True
         
     def get_tile_move(self, index):
-        blank_tile_coord = self.get_blank_tile_coordinates()
-        tile_coord = self.get_coordinates(index)
-        move_code = None
-        if blank_tile_coord[0] == tile_coord[0]:
-            if blank_tile_coord[1] == tile_coord[1] - 1:
-                move_code = 0 # up
-            if blank_tile_coord[1] == tile_coord[1] + 1:
-                move_code = 1 # down
-        if blank_tile_coord[1] == tile_coord[1]:
-            if blank_tile_coord[0] == tile_coord[0] - 1:
-                move_code = 2 # left
-            if blank_tile_coord[0] == tile_coord[0] + 1:
-                move_code = 3 # right
-        if move_code != None:
-            return (index, move_code, 0)
+        (blank_tile_x, blank_tile_y) = self.get_blank_tile_coordinates()
+        (tile_x, tile_y) = self.get_coordinates(index)
+        if blank_tile_x == tile_x:
+            if blank_tile_y == tile_y - 1:
+                return 0 # up
+            if blank_tile_y == tile_y + 1:
+                return 1 # down
+        if blank_tile_y == tile_y:
+            if blank_tile_x == tile_x - 1:
+                return 2 # left
+            if blank_tile_x == tile_x + 1:
+                return 3 # right
         return None
+    
+    def get_tile_to_move_index(self, move_code):
+        (grid_width, grid_height) = self.grid_size
+        (blank_tile_x, blank_tile_y) = self.get_blank_tile_coordinates()
+        blank_tile_index = self.get_blank_tile_index()
+        if move_code == 0 and blank_tile_y != grid_height - 1: # up
+            return blank_tile_index + grid_width
+        if move_code == 1 and blank_tile_y != 0: # down
+            return blank_tile_index - grid_width
+        if move_code == 2 and blank_tile_x != grid_width - 1: # left
+            return blank_tile_index + 1
+        if move_code == 3 and blank_tile_x != 0: # right
+            return blank_tile_index - 1
+        return None
+    
+    def get_rotation_move_info(self, rotate_chrono, limits = None):
+        (start_index, end_index) = limits if limits != None else (0, self.get_grid_length() - 1)
+        (start_x, start_y) = self.get_coordinates(start_index)
+        (end_x, end_y) = self.get_coordinates(end_index)
+        (blank_tile_x, blank_tile_y) = self.get_blank_tile_coordinates()
         
+        target_up = self.get_tile_to_move_index(0)
+        target_down = self.get_tile_to_move_index(1)
+        target_left = self.get_tile_to_move_index(2)
+        target_right = self.get_tile_to_move_index(3)
+        
+        if blank_tile_x == start_x and blank_tile_y >= start_y and blank_tile_y <= end_y:
+            if rotate_chrono and target_up != None:
+                return (target_up, 0)
+            if not rotate_chrono and target_down != None:
+                return (target_down, 1)
+        if blank_tile_x == end_x and blank_tile_y >= start_y and blank_tile_y <= end_y:
+            if rotate_chrono and target_down != None:
+                return (target_down, 1)
+            if not rotate_chrono and target_up != None:
+                return (target_up, 0)
+        if blank_tile_y == start_y and blank_tile_x >= start_x and blank_tile_x <= end_x:
+            if rotate_chrono and target_right != None:
+                return (target_right, 3)
+            if not rotate_chrono and target_left != None:
+                return (target_left, 2)
+        if blank_tile_y == end_y and blank_tile_x >= start_x and blank_tile_x <= end_x:
+            if rotate_chrono and target_left != None:
+                return (target_left, 2)
+            if not rotate_chrono and target_right != None:
+                return (target_right, 3)
+        return None
+    
     def complete_move(self, move_code):
         blank_index = self.get_blank_tile_index()
         grid_width = self.grid_size[0]

@@ -4,6 +4,7 @@ from PygameSDK.Button import *
 from PygameSDK.ImageView import *
 from PygameSDK.View import *
 from PygameSDK.MouseHandler import *
+from PygameSDK.KeyboardHandler import *
 
 class TaquinGridView(View):
     def __init__(self, v_m, size, img):
@@ -21,6 +22,7 @@ class TaquinGridView(View):
         self.generate_interface()
         self.generate_images()
         self.generate_mouse_actions()
+        self.generate_shortcuts()
         
     def generate_interface(self):
         interface_start_x = self.image_view_width
@@ -56,5 +58,13 @@ class TaquinGridView(View):
         self.mouse_actions.append(MouseHandler('mouse_button_released', 'stop_idle_actions'))
     
     def generate_shortcuts(self):
-        print('TBD')
-        # to add : direction move, rotate move, solve
+        self.shortcuts.append(KeyboardHandler('up', 'move_grid_0'))
+        self.shortcuts.append(KeyboardHandler('down', 'move_grid_1'))
+        self.shortcuts.append(KeyboardHandler('left', 'move_grid_2'))
+        self.shortcuts.append(KeyboardHandler('right', 'move_grid_3'))
+        
+        self.shortcuts.append(KeyboardHandler('r', 'rotate_grid_0'))
+        self.shortcuts.append(KeyboardHandler('t', 'rotate_grid_1'))
+        
+        self.shortcuts.append(KeyboardHandler('s', 'solve_algo'))
+        self.shortcuts.append(KeyboardHandler('b', 'solve_bruteforce'))
