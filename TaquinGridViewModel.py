@@ -6,7 +6,6 @@ from TaquinGrid import *
 class TaquinGridViewModel(ViewModel):
     def __init__(self, game_size):
         super().__init__()
-        self.game_dimensions = game_size
         self.current_grid = TaquinGrid(game_size)
         
         self.colors = ['w', 'n', 'r', 'b', 'v']
@@ -30,7 +29,6 @@ class TaquinGridViewModel(ViewModel):
            self.current_grid.complete_move(move_code)
            if self.grid_solved():
               self.timer.stop_timer()
-        self.should_update = True
     
     # superclass methods
     def handle_code(self, code):
@@ -73,7 +71,6 @@ class TaquinGridViewModel(ViewModel):
             self.move_count += 1
             self.timer.start_timer()
             self.current_animation = (tile_index, possible_move_code, 0)
-            self.should_update = True
     
     def move_grid(self, move_code):
         tile_to_move_index = self.current_grid.get_tile_to_move_index(move_code)
@@ -81,7 +78,6 @@ class TaquinGridViewModel(ViewModel):
             self.move_count += 1
             self.timer.start_timer()
             self.current_animation = (tile_to_move_index, move_code, 0)
-            self.should_update = True
     
     def rotate_grid(self, rotate_code):
         rotate_chrono = (rotate_code == 0)
@@ -91,46 +87,37 @@ class TaquinGridViewModel(ViewModel):
             self.move_count += 1
             self.timer.start_timer()
             self.current_animation = (tile_index, move_code, 0)
-            self.should_update = True
     
     def shuffle_grid(self):
         self.current_grid.shuffle()
         self.move_count = 0
         self.timer.reset_timer()
-        self.should_update = True
     
     def start_showing_hint(self):
         if not self.show_hint:
             self.show_hint = True
-            self.should_update = True
     
     def stop_showing_hint(self):
         if self.show_hint:
             self.show_hint = False
-            self.should_update = True
     
     def start_showing_figures(self):
         if not self.show_figures:
             self.show_figures = True
-            self.should_update = True
     
     def stop_showing_figures(self):
         if self.show_figures:
             self.show_figures = False
-            self.should_update = True
     
     def toggle_show_time(self):
         self.show_time = not self.show_time
-        self.should_update = True
     
     def toggle_show_score(self):
         self.show_score = not self.show_score
-        self.should_update = True
     
     def change_background_color(self, code):
         if code != self.background_color.color_code:
             self.background_color = Color(code)
-            self.should_update = True
     
     def return_to_list_view(self):
         self.should_return = True
@@ -142,6 +129,9 @@ class TaquinGridViewModel(ViewModel):
         print('not ready yet')
 
     # data providers for UI
+    def get_tile_dimension(self, screen_size):
+        return (screen_size[0] / self.current_grid.grid_size[0], screen_size[1] / self.current_grid.grid_size[1])
+    
     def grid_solved(self):
         return self.current_grid.solved()
         
@@ -165,25 +155,27 @@ class TaquinGridViewModel(ViewModel):
         
     def score_button_text(self):
         return str(self.move_count) if self.show_score else 'Score'
-    
-    def get_all_tiles_infos(self):
-        grid_tile_infos = self.current_grid.get_tiles_infos()
-        result = []
-        for tile_info in grid_tile_infos:
-            (index, element, index_coord, element_coord) = tile_info
-            value_text = str(element + 1) if self.show_figures else None
-            move_info = None
-            if self.current_animation != None:
-                (moving_index, move_code, animation_progress) = self.current_animation
-                if moving_index == index:
-                    if move_code == 0:
-                        move_info = (0, -1 * animation_progress/self.animation_frame_count)
-                    if move_code == 1:
-                        move_info = (0, animation_progress/self.animation_frame_count)
-                    if move_code == 2:
-                        move_info = (-1 *animation_progress/self.animation_frame_count, 0)
-                    if move_code == 3:
-                        move_info = (animation_progress/self.animation_frame_count, 0)
-            result.append((index, (index_coord, move_info), element_coord, value_text))
-        return result
+        
+    def get_tiles_zones_coordinates(self):
+        return self.current_grid.get_sorted_tiles_coordinates()
+        
+    def get_tiles_positions_coordinates(self):
+        return self.current_grid.get_tiles_coordinates_in_grid()
+        
+    def get_displayed_text(self, index):
+        return str(index + 1) if self.show_figures else None
+        
+    def get_movement(self, index):
+        if self.current_animation != None:
+            (moving_index, move_code, animation_progress) = self.current_animation
+            if moving_index == index:
+                if move_code == 0:
+                    return (0, -1 * animation_progress/self.animation_frame_count)
+                if move_code == 1:
+                    return (0, animation_progress/self.animation_frame_count)
+                if move_code == 2:
+                    return (-1 *animation_progress/self.animation_frame_count, 0)
+                if move_code == 3:
+                    return (animation_progress/self.animation_frame_count, 0)
+        return (0,0)
                 

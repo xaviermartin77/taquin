@@ -9,6 +9,9 @@ class TaquinGrid:
     
     def get_coordinates(self, index):
         return (index % self.grid_size[0], index // self.grid_size[0])
+    
+    def get_tile_coordinates(self, value):
+        return self.get_coordinates(self.current_array.index(value))
         
     def get_grid_length(self):
         return self.grid_size[0] * self.grid_size[1]
@@ -21,14 +24,12 @@ class TaquinGrid:
         
     def get_blank_tile_coordinates(self):
         return self.get_coordinates(self.get_blank_tile_index())
-    
-    def get_tiles_infos(self):
-        result = []
-        for index, element in enumerate(self.current_array):
-            if element == self.get_blank_tile_value():
-                continue
-            result.append((index, element, self.get_coordinates(index), self.get_coordinates(element)))
-        return result
+        
+    def get_sorted_tiles_coordinates(self):
+        return list(map(self.get_coordinates, list(range(self.get_grid_length() - 1))))
+        
+    def get_tiles_coordinates_in_grid(self):
+        return list(map(lambda element: self.get_coordinates(self.current_array.index(element)), list(range(self.get_grid_length() - 1))))
     
     def shuffle(self):
         self.current_array = list(range(self.get_grid_length()))
@@ -62,9 +63,9 @@ class TaquinGrid:
                 return False
         return True
         
-    def get_tile_move(self, index):
+    def get_tile_move(self, value):
         (blank_tile_x, blank_tile_y) = self.get_blank_tile_coordinates()
-        (tile_x, tile_y) = self.get_coordinates(index)
+        (tile_x, tile_y) = self.get_tile_coordinates(value)
         if blank_tile_x == tile_x:
             if blank_tile_y == tile_y - 1:
                 return 0 # up
@@ -82,13 +83,13 @@ class TaquinGrid:
         (blank_tile_x, blank_tile_y) = self.get_blank_tile_coordinates()
         blank_tile_index = self.get_blank_tile_index()
         if move_code == 0 and blank_tile_y != grid_height - 1: # up
-            return blank_tile_index + grid_width
+            return self.current_array.index(blank_tile_index + grid_width)
         if move_code == 1 and blank_tile_y != 0: # down
-            return blank_tile_index - grid_width
+            return self.current_array.index(blank_tile_index - grid_width)
         if move_code == 2 and blank_tile_x != grid_width - 1: # left
-            return blank_tile_index + 1
+            return self.current_array.index(blank_tile_index + 1)
         if move_code == 3 and blank_tile_x != 0: # right
-            return blank_tile_index - 1
+            return self.current_array.index(blank_tile_index - 1)
         return None
     
     def get_rotation_move_info(self, rotate_chrono, limits = None):

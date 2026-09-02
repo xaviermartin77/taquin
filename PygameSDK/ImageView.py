@@ -32,6 +32,8 @@ class ImageView(Label):
         self.image_provider = ImageRessourceProvider()
         
     def display(self, screen):
+        if not self.is_visible:
+            return
         if self.background_color != None:
             pygame.draw.rect(screen, self.background_color, self.coordinates)
         self.display_image(screen)
@@ -46,4 +48,9 @@ class ImageView(Label):
             screen.blit(image_surface, self.coordinates)
         elif self.image_surface != None:
             screen.blit(self.image_surface, self.coordinates, self.image_zone)
+            
+    def set_image_path(self, path):
+        if self.image_path != path:
+            self.image_path = path
+            self.should_update = True
         

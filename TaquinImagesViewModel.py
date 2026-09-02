@@ -18,6 +18,9 @@ class TaquinImagesViewModel(ViewModel):
     
     def generate_image_list(self):
         self.image_list = self.image_provider.generate_default_images()
+        
+    def get_grid_size(self):
+        return self.images_grid_dimensions[0] * self.images_grid_dimensions[1]
     
     # superclass methods
     def handle_code(self, code):
@@ -42,35 +45,29 @@ class TaquinImagesViewModel(ViewModel):
     # action handlers
     def decrement_game_width(self):
         self.game_width = self.game_width - 1
-        self.should_update = True
 
     def increment_game_width(self):
         self.game_width = self.game_width + 1
-        self.should_update = True
 
     def decrement_game_height(self):
         self.game_height = self.game_height - 1
-        self.should_update = True
 
     def increment_game_height(self):
         self.game_height = self.game_height + 1
-        self.should_update = True
 
     def scroll_images_up(self):
         if self.first_list_index - self.images_grid_dimensions[0] >= 0:
             self.first_list_index = self.first_list_index - self.images_grid_dimensions[0]
-            self.should_update = True
 
     def scroll_images_down(self):
-        image_list_length = self.images_grid_dimensions[0] * self.images_grid_dimensions[1]
+        image_list_length = self.get_grid_size()
         if self.first_list_index + image_list_length < len(self.image_list):
             self.first_list_index = self.first_list_index + self.images_grid_dimensions[0]
-            self.should_update = True
 
     def select_image(self, selected_index):
-        if selected_index < len(self.image_list):
-            self.selected_image_index = selected_index
-            self.should_update = True
+        real_index = selected_index + self.first_list_index
+        if real_index < len(self.image_list):
+            self.selected_image_index = real_index
     
     def switch_to_game_view(self):
         game_size = (self.game_width, self.game_height)
@@ -97,13 +94,12 @@ class TaquinImagesViewModel(ViewModel):
         return self.game_height < 20
     
     def get_displayed_images(self):
-        grid_size = self.images_grid_dimensions[0] * self.images_grid_dimensions[1]
-        last_index = self.first_list_index + grid_size
+        last_index = self.first_list_index + self.get_grid_size()
         if last_index >= len(self.image_list):
             last_index = len(self.image_list)
         return self.image_list[self.first_list_index:last_index]
         
-    def get_real_index(self, index):
-        return index + self.first_list_index
+    def get_relative_selected_index(self):
+        return self.selected_image_index - self.first_list_index
                 
                 

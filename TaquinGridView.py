@@ -24,35 +24,77 @@ class TaquinGridView(View):
         self.generate_mouse_actions()
         self.generate_shortcuts()
         
+    def update_elements(self):
+        self.update_interface()
+        self.update_images()
+        
     def generate_interface(self):
         interface_start_x = self.image_view_width
         
-        self.buttons.append(Button(Rect(interface_start_x, 0, self.interface_width, self.screen_height/5), Color.white, Color.black, (self.view_model.first_button_text(), Color.black, self.fonts[1]), self.view_model.first_button_handler()))
-        self.buttons.append(Button(Rect(interface_start_x, self.screen_height/5, self.interface_width, self.screen_height/5), Color.white, Color.black, (self.view_model.second_button_text(), Color.black, self.fonts[1]), self.view_model.second_button_handler()))
+        self.first_button = Button(Rect(interface_start_x, 0, self.interface_width, self.screen_height/5), Color.white, Color.black, ('', Color.black, self.fonts[1]), '')
+        self.second_button = Button(Rect(interface_start_x, self.screen_height/5, self.interface_width, self.screen_height/5), Color.white, Color.black, ('', Color.black, self.fonts[1]), '')
         
-        self.buttons.append(Button(Rect(interface_start_x, 2*self.screen_height/5, self.interface_width, self.screen_height/5), Color.white, Color.black, (self.view_model.time_button_text(), Color.black, self.fonts[1]), 'toggle_time_display'))
-        self.buttons.append(Button(Rect(interface_start_x, 3*self.screen_height/5, self.interface_width, self.screen_height/5 - 1), Color.white, Color.black, (self.view_model.score_button_text(), Color.black, self.fonts[1]), 'toggle_score_display'))
+        self.time_button = Button(Rect(interface_start_x, 2*self.screen_height/5, self.interface_width, self.screen_height/5), Color.white, Color.black, ('', Color.black, self.fonts[1]), 'toggle_time_display')
+        self.score_button = Button(Rect(interface_start_x, 3*self.screen_height/5, self.interface_width, self.screen_height/5 - 1), Color.white, Color.black, ('', Color.black, self.fonts[1]), 'toggle_score_display')
         
+        color_buttons = []
         for index, color_code in enumerate(self.view_model.colors):
-            self.buttons.append(Button(Rect(interface_start_x, 4*self.screen_height/5 + index * self.screen_height/25, self.interface_width, self.screen_height/25), Color(color_code).get_color_value(), None, None, 'select_background_color_' + color_code))
-        self.labels.append(Label(Rect(interface_start_x, 4*self.screen_height/5, self.interface_width, self.screen_height - 1), None, Color.black, None, None))
+            color_button = Button(Rect(interface_start_x, 4*self.screen_height/5 + index * self.screen_height/25, self.interface_width, self.screen_height/25), Color(color_code).get_color_value(), None, None, 'select_background_color_' + color_code)
+            color_buttons.append(color_button)
+            
+        interface_border = Label(Rect(interface_start_x, 4*self.screen_height/5, self.interface_width, self.screen_height - 1), None, Color.black, None, None)
+        
+        self.update_interface()
+        
+        self.elements = self.elements + [self.first_button, self.second_button, self.time_button, self.score_button] + color_buttons + [interface_border]
+        
+    def update_interface(self):
+        self.first_button.set_text(self.view_model.first_button_text())
+        self.first_button.set_handler(self.view_model.first_button_handler())
+        
+        self.second_button.set_text(self.view_model.second_button_text())
+        self.second_button.set_handler(self.view_model.second_button_handler())
+        
+        self.time_button.set_text(self.view_model.time_button_text())
+        self.score_button.set_text(self.view_model.score_button_text())
         
     def generate_images(self):
-        if self.view_model.show_hint or self.view_model.grid_solved():
-            self.labels.append(ImageView(Rect(0, 0, self.image_view_width, self.screen_height), None, None, None, (None, None, self.image.image_ressource, None)))
-        else:
-            self.labels.append(Label(Rect(0, 0, self.image_view_width, self.screen_height), self.view_model.background_color.get_color_value(), None, None, None))
-            (game_width, game_height) = self.view_model.game_dimensions
-            image_tile_width = self.image_view_width / game_width
-            image_tile_height = self.screen_height / game_height
-            for tile_infos in self.view_model.get_all_tiles_infos():
-                (tile_position_x, tile_position_y) = (tile_infos[1][0][0] * image_tile_width, tile_infos[1][0][1] * image_tile_height)
-                if tile_infos[1][1] != None:
-                    tile_position_x = tile_position_x + image_tile_width*tile_infos[1][1][0]
-                    tile_position_y = tile_position_y + image_tile_height*tile_infos[1][1][1]
-                tile_image_zone = (tile_infos[2][0] * image_tile_width, tile_infos[2][1] * image_tile_height, image_tile_width, image_tile_height)
-                text_info = (tile_infos[3], Color.red, self.fonts[0]) if tile_infos[3] != None else None
-                self.buttons.append(ImageButton(Rect(tile_position_x, tile_position_y, image_tile_width, image_tile_height), None, None, text_info, (None, None, self.image.image_ressource, tile_image_zone), 'click_tile_index_' + str(tile_infos[0])))
+        self.images_background = Label(Rect(0, 0, self.image_view_width, self.screen_height), Color.white, None, None, None)
+        
+        self.hint_image = ImageView(Rect(0, 0, self.image_view_width, self.screen_height), None, None, None, (None, None, self.image.image_ressource, None))
+        
+        (self.image_tile_width, self.image_tile_height) = self.view_model.get_tile_dimension((self.image_view_width, self.screen_height))
+        
+        self.image_view_list = []
+        for index, coordinates in enumerate(self.view_model.get_tiles_zones_coordinates()):
+            tile_image_zone = (self.image_tile_width * coordinates[0], self.image_tile_height * coordinates[1], self.image_tile_width, self.image_tile_height)
+            image_view = ImageButton(Rect(0, 0, self.image_tile_width, self.image_tile_height), None, None, ('', Color.red, self.fonts[0]), (None, None, self.image.image_ressource, tile_image_zone), 'click_tile_index_' + str(index))
+            self.image_view_list.append(image_view)
+        self.elements = self.elements + [self.images_background, self.hint_image] + self.image_view_list
+        
+        self.update_images()
+                
+    def update_images(self):
+        self.images_background.set_bkg_color(self.view_model.background_color.get_color_value())
+        
+        hide_grid = self.view_model.show_hint or self.view_model.grid_solved()
+        self.hint_image.set_visibility(hide_grid)
+        
+        coordinates_list = self.view_model.get_tiles_positions_coordinates()
+        for index, image_view in enumerate(self.image_view_list):
+            coordinates = coordinates_list[index]
+            movement = self.view_model.get_movement(index)
+            tile_position_x = (coordinates[0] + movement[0]) * self.image_tile_width
+            tile_position_y = (coordinates[1] + movement[1]) * self.image_tile_height
+            if movement != (0,0):
+                start_x = (coordinates[0] - 1) * self.image_tile_width if movement[0] < 0 else coordinates[0]
+                start_y = (coordinates[1] - 1) * self.image_tile_height if movement[1] < 0 else coordinates[1]
+                width = self.image_tile_width if movement[0] == 0 else 2 * self.image_tile_width
+                height = self.image_tile_height if movement[1] == 0 else 2 * self.image_tile_height
+                self.animation_zone = Rect(start_x, start_y, width, height)
+            image_view.set_coordinates(Rect(tile_position_x, tile_position_y, self.image_tile_width, self.image_tile_height))
+            image_view.set_text(self.view_model.get_displayed_text(index))
+            image_view.set_visibility(not hide_grid)
     
     def generate_mouse_actions(self):
         self.mouse_actions.append(MouseHandler('mouse_button_released', 'stop_idle_actions'))

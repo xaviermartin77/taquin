@@ -7,18 +7,30 @@ class Button(Label):
     def __init__(self, coord, bkg, border, text_info, code):
         super().__init__(coord, bkg, border, text_info)
         self.handler_code = code
-        
+    
+    def set_handler(self, code):
+        if self.handler_code != code:
+            self.handler_code = code
+    
     def is_pushed(self, pos):
+        if not self.is_visible:
+            return False
         return pos[0] > self.coordinates.left and pos[0] < self.coordinates.right and pos[1] > self.coordinates.top and pos[1] < self.coordinates.bottom
 
 class ImageButton(ImageView):
     def __init__(self, coord, bkg, border, text_info, image_info, code):
         super().__init__(coord, bkg, border, text_info, image_info)
         self.handler_code = code
-        
+    
+    def set_handler(self, code):
+        if self.handler_code != code:
+            self.handler_code = code
+    
     def is_pushed(self, pos):
+        if not self.is_visible:
+            return False
         return pos[0] > self.coordinates.left and pos[0] < self.coordinates.right and pos[1] > self.coordinates.top and pos[1] < self.coordinates.bottom
-        
+
 class TriangleButton(Button):
     def __init__(self, coord, bkg, border, code, orcode):
         super().__init__(coord, bkg, border, None, code)
@@ -37,8 +49,10 @@ class TriangleButton(Button):
             return x_converted < y_converted
         if self.orientation == 3:
             return x_converted > y_converted
-            
+
     def display(self, screen):
+        if not self.is_visible:
+            return
         if self.orientation == 0:
             points = [self.coordinates.topleft, self.coordinates.topright, self.coordinates.bottomleft]
         if self.orientation == 1:
