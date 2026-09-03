@@ -1,6 +1,6 @@
 class ViewModel:
     def __init__(self):
-        self.next_view = None
+        self.next_screen = None
         self.should_return = False
         self.current_animation = None
         

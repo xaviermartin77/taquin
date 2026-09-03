@@ -1,12 +1,12 @@
 from TaquinGridViewModel import *
-from PygameSDK.Label import *
-from PygameSDK.Button import *
-from PygameSDK.ImageView import *
 from PygameSDK.View import *
+from PygameSDK.Buttons import *
+from PygameSDK.ImageView import *
+from PygameSDK.Screen import *
 from PygameSDK.MouseHandler import *
 from PygameSDK.KeyboardHandler import *
 
-class TaquinGridView(View):
+class TaquinGridScreen(Screen):
     def __init__(self, v_m, size, img):
         super().__init__(v_m, size, [('arial', 50), ('arial', 20)])
         self.interface_width = 100
@@ -17,36 +17,36 @@ class TaquinGridView(View):
     def unload_ressources(self):
         self.image.unload_image_ressource()
         
-    def generate_elements(self):
-        super().generate_elements()
+    def generate_views(self):
+        super().generate_views()
         self.generate_interface()
         self.generate_images()
         self.generate_mouse_actions()
         self.generate_shortcuts()
         
-    def update_elements(self):
+    def update_views(self):
         self.update_interface()
         self.update_images()
         
     def generate_interface(self):
         interface_start_x = self.image_view_width
         
-        self.first_button = Button(Rect(interface_start_x, 0, self.interface_width, self.screen_height/5), Color.white, Color.black, ('', Color.black, self.fonts[1]), '')
-        self.second_button = Button(Rect(interface_start_x, self.screen_height/5, self.interface_width, self.screen_height/5), Color.white, Color.black, ('', Color.black, self.fonts[1]), '')
+        self.first_button = Button(Rect(interface_start_x, 0, self.interface_width, self.screen_height/5), Color.white, Color.black, ('', Color.black, self.fonts[1], False), '')
+        self.second_button = Button(Rect(interface_start_x, self.screen_height/5, self.interface_width, self.screen_height/5), Color.white, Color.black, ('', Color.black, self.fonts[1], False), '')
         
-        self.time_button = Button(Rect(interface_start_x, 2*self.screen_height/5, self.interface_width, self.screen_height/5), Color.white, Color.black, ('', Color.black, self.fonts[1]), 'toggle_time_display')
-        self.score_button = Button(Rect(interface_start_x, 3*self.screen_height/5, self.interface_width, self.screen_height/5 - 1), Color.white, Color.black, ('', Color.black, self.fonts[1]), 'toggle_score_display')
+        self.time_button = Button(Rect(interface_start_x, 2*self.screen_height/5, self.interface_width, self.screen_height/5), Color.white, Color.black, ('', Color.black, self.fonts[1], False), 'toggle_time_display')
+        self.score_button = Button(Rect(interface_start_x, 3*self.screen_height/5, self.interface_width, self.screen_height/5 - 1), Color.white, Color.black, ('', Color.black, self.fonts[1], False), 'toggle_score_display')
         
         color_buttons = []
         for index, color_code in enumerate(self.view_model.colors):
             color_button = Button(Rect(interface_start_x, 4*self.screen_height/5 + index * self.screen_height/25, self.interface_width, self.screen_height/25), Color(color_code).get_color_value(), None, None, 'select_background_color_' + color_code)
             color_buttons.append(color_button)
             
-        interface_border = Label(Rect(interface_start_x, 4*self.screen_height/5, self.interface_width, self.screen_height - 1), None, Color.black, None, None)
+        interface_border = View(Rect(interface_start_x, 4*self.screen_height/5, self.interface_width, self.screen_height - 1), None, Color.black)
         
         self.update_interface()
         
-        self.elements = self.elements + [self.first_button, self.second_button, self.time_button, self.score_button] + color_buttons + [interface_border]
+        self.views = self.views + [self.first_button, self.second_button, self.time_button, self.score_button] + color_buttons + [interface_border]
         
     def update_interface(self):
         self.first_button.set_text(self.view_model.first_button_text())
@@ -59,7 +59,7 @@ class TaquinGridView(View):
         self.score_button.set_text(self.view_model.score_button_text())
         
     def generate_images(self):
-        self.images_background = Label(Rect(0, 0, self.image_view_width, self.screen_height), Color.white, None, None, None)
+        self.images_background = View(Rect(0, 0, self.image_view_width, self.screen_height), Color.white, None)
         
         self.hint_image = ImageView(Rect(0, 0, self.image_view_width, self.screen_height), None, None, None, (None, None, self.image.image_ressource, None))
         
@@ -68,9 +68,9 @@ class TaquinGridView(View):
         self.image_view_list = []
         for index, coordinates in enumerate(self.view_model.get_tiles_zones_coordinates()):
             tile_image_zone = (self.image_tile_width * coordinates[0], self.image_tile_height * coordinates[1], self.image_tile_width, self.image_tile_height)
-            image_view = ImageButton(Rect(0, 0, self.image_tile_width, self.image_tile_height), None, None, ('', Color.red, self.fonts[0]), (None, None, self.image.image_ressource, tile_image_zone), 'click_tile_index_' + str(index))
+            image_view = ImageButton(Rect(0, 0, self.image_tile_width, self.image_tile_height), None, None, ('', Color.red, self.fonts[0], False), (None, None, self.image.image_ressource, tile_image_zone), 'click_tile_index_' + str(index))
             self.image_view_list.append(image_view)
-        self.elements = self.elements + [self.images_background, self.hint_image] + self.image_view_list
+        self.views = self.views + [self.images_background, self.hint_image] + self.image_view_list
         
         self.update_images()
                 

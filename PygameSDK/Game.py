@@ -3,38 +3,38 @@ import weakref
 
 class Game:
     def __init__(self):
-        self.view = None
+        self.screen = None
         
-    def start_game(self, view):
+    def start_game(self, screen):
         loop = True
         
         pygame.init()
-        self.display_screen(view)
+        self.display_screen(screen)
         
         while loop:
-            self.view.check_inputs()
-            if self.view.should_exit:
+            self.screen.check_inputs()
+            if self.screen.should_exit:
                 loop = False
                 continue
-            if self.view.should_navigate():
+            if self.screen.should_navigate():
                 self.navigate()
-            elif self.view.should_return():
-                self.return_to_previous_view()
+            elif self.screen.should_return():
+                self.return_to_previous_screen()
             else:
-                self.view.update_if_needed()
+                self.screen.update_if_needed()
         pygame.quit()
         
     def navigate(self):
-        new_view = self.view.get_next_view()
-        new_view.previous_view = weakref.ref(self.view)()
-        self.display_screen(new_view)
+        new_screen = self.screen.get_next_screen()
+        new_screen.previous_screen = weakref.ref(self.screen)()
+        self.display_screen(new_screen)
         
-    def return_to_previous_view(self):
-        self.view.unload_ressources()
-        previous_view = self.view.previous_view
-        self.display_screen(previous_view)
+    def return_to_previous_screen(self):
+        self.screen.unload_ressources()
+        previous_screen = self.screen.previous_screen
+        self.display_screen(previous_screen)
         
-    def display_screen(self, view):
-        self.view = view
-        self.view.setup_view()
+    def display_screen(self, screen):
+        self.screen = screen
+        self.screen.setup_screen()
         

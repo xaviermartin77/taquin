@@ -29,7 +29,7 @@ class TaquinGrid:
         return list(map(self.get_coordinates, list(range(self.get_grid_length() - 1))))
         
     def get_tiles_coordinates_in_grid(self):
-        return list(map(lambda element: self.get_coordinates(self.current_array.index(element)), list(range(self.get_grid_length() - 1))))
+        return list(map(lambda value: self.get_coordinates(self.current_array.index(value)), list(range(self.get_grid_length() - 1))))
     
     def shuffle(self):
         self.current_array = list(range(self.get_grid_length()))
@@ -58,8 +58,8 @@ class TaquinGrid:
         return (count%2 == 0)
         
     def solved(self):
-        for index, element in enumerate(self.current_array):
-            if element != index:
+        for index, value in enumerate(self.current_array):
+            if value != index:
                 return False
         return True
         

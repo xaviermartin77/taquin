@@ -50,7 +50,7 @@ class TriangleButton(Button):
         if self.orientation == 3:
             return x_converted > y_converted
 
-    def display(self, screen):
+    def display(self, window):
         if not self.is_visible:
             return
         if self.orientation == 0:
@@ -62,8 +62,8 @@ class TriangleButton(Button):
         if self.orientation == 3:
             points = [self.coordinates.topleft, self.coordinates.topright, self.coordinates.bottomright]
         if self.background_color != None:
-            pygame.draw.polygon(screen, self.background_color, points)
+            pygame.draw.polygon(window, self.background_color, points)
         if self.border_color != None:
-            pygame.draw.line(screen, self.border_color, points[0], points[1])
-            pygame.draw.line(screen, self.border_color, points[1], points[2])
-            pygame.draw.line(screen, self.border_color, points[2], points[0])
+            pygame.draw.line(window, self.border_color, points[0], points[1])
+            pygame.draw.line(window, self.border_color, points[1], points[2])
+            pygame.draw.line(window, self.border_color, points[2], points[0])

@@ -1,112 +1,44 @@
-import math
 import pygame
-from PygameSDK.Color import *
-from PygameSDK.Button import *
+from pygame import Rect
 
 class View:
-    def __init__(self, v_m, size, f_i = [('arial', 30)], bkg_code = 'w'):
-        self.view_model = v_m
+    def __init__(self, coord, bkg, border):
+        self.coordinates = coord
+        self.background_color = bkg
+        self.border_color = border
+        self.is_visible = True
+        self.should_update = False
         
-        self.size = size
-        
-        self.screen = None
-        self.background_color = Color(bkg_code)
-        
-        self.should_exit = False
-        self.previous_view = None
-        
-        self.elements = []
-        self.elements_to_hide = []
-        
-        self.font_infos = f_i
-        self.fonts = []
-        
-        self.animation_zone = None
-        
-    def setup_view(self):
-        self.screen = pygame.display.set_mode(self.size)
-        for font_info in self.font_infos:
-            self.fonts.append(pygame.font.SysFont(font_info[0], font_info[1], False, False))
-        self.view_model.next_view = None
-        
-        self.generate_elements()
-        self.screen.fill(self.background_color.get_color_value())
-        for element in self.elements:
-            element.should_update = False
-            element.display(self.screen)
-        pygame.display.flip()
-    
-    def should_navigate(self):
-        return self.view_model.next_view != None
-    
-    def get_next_view(self):
-        return self.view_model.next_view
-    
-    def should_return(self):
-        return self.view_model.should_return
-    
-    def unload_ressources(self):
-        print('unloading ressources')
-        
-    def generate_elements(self):
-        self.shortcuts = []
-        self.mouse_actions = []
-        self.elements = []
-        # Generate UI elements here
-        
-    def update_elements(self, update_state):
-        return ([], [], [])
-    
-    def check_inputs(self):
-        if self.view_model.is_animating():
-            self.view_model.update_animation()
-        for event in pygame.event.get():
-            if event.type==pygame.QUIT:
-                self.should_exit = True
-            if self.view_model.is_animating():
-                continue
-            if event.type == pygame.KEYDOWN:
-                for shortcut in self.shortcuts:
-                    if shortcut.is_pressed(event.key):
-                        self.view_model.handle_code(shortcut.handler_code)
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                pos = pygame.mouse.get_pos()
-                for button in self.get_button_list():
-                    if button.is_pushed(pos):
-                        self.view_model.handle_code(button.handler_code)
-            if (event.type == pygame.MOUSEBUTTONDOWN and event.button != 1) or (event.type == pygame.MOUSEBUTTONUP):
-                for mouse_action in self.mouse_actions:
-                    if mouse_action.is_triggered(event):
-                        self.view_model.handle_code(mouse_action.handler_code)
-    
-    def get_button_list(self):
-        return [element for element in self.elements if (isinstance(element, Button) or isinstance(element, ImageButton))]
-                        
-    def update_if_needed(self):
-        self.update_elements()
-        update_rect_list = []
-        if self.animation_zone != None:
-            update_rect_list.append(self.animation_zone.copy())
-            self.animation_zone = None
-        
-        for old_element in self.elements_to_hide:
-            update_rect_list.append(element.coordinates)
-        self.elements_to_hide = []
+    def display(self, window):
+        if not self.is_visible:
+            return
+        if self.background_color != None:
+            pygame.draw.rect(window, self.background_color, self.coordinates)
+        if self.border_color != None:
+            self.display_border(window)
             
-        for element in self.elements:
-            if element.should_update:
-                element.should_update = False
-                update_rect_list.append(element.coordinates)
-        
-        if len(update_rect_list) > 0 :
-            for element in self.elements:
-                element.display(self.screen)
-            pygame.display.update(update_rect_list)
-        
-    def update_elements(self):
-        print('updating elements')
-        # update ui elements with view_model updates
-        
-    def remove_element(self, element):
-        self.elements_to_hide.append(element)
-        self.elements.remove(element)
+    def display_border(self, window):
+        pygame.draw.line(window, self.border_color, self.coordinates.topleft, self.coordinates.topright)
+        pygame.draw.line(window, self.border_color, self.coordinates.bottomleft, self.coordinates.bottomright)
+        pygame.draw.line(window, self.border_color, self.coordinates.topleft, self.coordinates.bottomleft)
+        pygame.draw.line(window, self.border_color, self.coordinates.topright, self.coordinates.bottomright)
+            
+    def set_visibility(self, show):
+        if self.is_visible != show:
+            self.is_visible = show
+            self.should_update = True
+            
+    def set_coordinates(self, coord):
+        if self.coordinates != coord:
+            self.coordinates = coord
+            self.should_update = True
+            
+    def set_border_color(self, border):
+        if self.border_color != border:
+            self.border_color = border
+            self.should_update = True
+            
+    def set_bkg_color(self, bkg):
+        if self.background_color != bkg:
+            self.background_color = bkg
+            self.should_update = True
