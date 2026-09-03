@@ -11,8 +11,8 @@ class Label(View):
             self.text = None
         
     def display(self, window):
-        super().display(window)
-        if self.text != None:
+        displaying = super().display(window)
+        if self.is_visible and self.text != None:
             self.show_text(window)
             
     def set_text(self, txt):
