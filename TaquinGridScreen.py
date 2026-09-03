@@ -5,6 +5,7 @@ from PygameSDK.ImageView import *
 from PygameSDK.Screen import *
 from PygameSDK.MouseHandler import *
 from PygameSDK.KeyboardHandler import *
+from PygameSDK.Animation import *
 
 class TaquinGridScreen(Screen):
     def __init__(self, v_m, size, img):
@@ -83,18 +84,16 @@ class TaquinGridScreen(Screen):
         coordinates_list = self.view_model.get_tiles_positions_coordinates()
         for index, image_view in enumerate(self.image_view_list):
             coordinates = coordinates_list[index]
-            movement = self.view_model.get_movement(index)
-            tile_position_x = (coordinates[0] + movement[0]) * self.image_tile_width
-            tile_position_y = (coordinates[1] + movement[1]) * self.image_tile_height
-            if movement != (0,0):
-                start_x = (coordinates[0] - 1) * self.image_tile_width if movement[0] < 0 else coordinates[0]
-                start_y = (coordinates[1] - 1) * self.image_tile_height if movement[1] < 0 else coordinates[1]
-                width = self.image_tile_width if movement[0] == 0 else 2 * self.image_tile_width
-                height = self.image_tile_height if movement[1] == 0 else 2 * self.image_tile_height
-                self.animation_zone = Rect(start_x, start_y, width, height)
-            image_view.set_coordinates(Rect(tile_position_x, tile_position_y, self.image_tile_width, self.image_tile_height))
+            tile_position_x = coordinates[0] * self.image_tile_width
+            tile_position_y = coordinates[1] * self.image_tile_height
+            image_coordinates = Rect(tile_position_x, tile_position_y, self.image_tile_width, self.image_tile_height)
+            image_view.set_coordinates(image_coordinates)
             image_view.set_text(self.view_model.get_displayed_text(index))
             image_view.set_visibility(not hide_grid)
+            movement = self.view_model.get_movement(index)
+            if movement != None:
+                animation = Animation('moving', image_coordinates, (movement[0] * self.image_tile_width, movement[1] * self.image_tile_height))
+                image_view.start_animation(animation)
     
     def generate_mouse_actions(self):
         self.mouse_actions.append(MouseHandler('mouse_button_released', 'stop_idle_actions'))

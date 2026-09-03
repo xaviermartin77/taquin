@@ -7,10 +7,10 @@ class TaquinGridViewModel(ViewModel):
     def __init__(self, game_size):
         super().__init__()
         self.current_grid = TaquinGrid(game_size)
+        self.current_move = None
         
         self.colors = ['w', 'n', 'r', 'b', 'v']
         self.background_color = Color('w')
-        self.animation_frame_count = 30
         
         self.move_count = 0
         self.timer = Timer()
@@ -19,16 +19,6 @@ class TaquinGridViewModel(ViewModel):
         self.show_figures = False
         self.show_time = False
         self.show_score = False
-        
-    def update_animation(self):
-        (index, move_code, animation_progress) = self.current_animation
-        if animation_progress < self.animation_frame_count:
-            self.current_animation = (index, move_code, animation_progress + 1)
-        else:
-           self.current_animation = None
-           self.current_grid.complete_move(move_code)
-           if self.grid_solved():
-              self.timer.stop_timer()
     
     # superclass methods
     def handle_code(self, code):
@@ -63,6 +53,14 @@ class TaquinGridViewModel(ViewModel):
             self.solved_with_bruteforce()
         if code == 'end_game':
             self.return_to_list_view()
+        
+    def did_complete_animation(self):
+        if self.current_move == None:
+            return
+        self.current_grid.complete_move(self.current_move[1])
+        self.current_move = None
+        if self.grid_solved():
+            self.timer.stop_timer()
     
     # action handlers
     def move_tile(self, tile_index):
@@ -70,14 +68,14 @@ class TaquinGridViewModel(ViewModel):
         if possible_move_code != None:
             self.move_count += 1
             self.timer.start_timer()
-            self.current_animation = (tile_index, possible_move_code, 0)
+            self.current_move = (tile_index, possible_move_code)
     
     def move_grid(self, move_code):
         tile_to_move_index = self.current_grid.get_tile_to_move_index(move_code)
         if tile_to_move_index != None:
             self.move_count += 1
             self.timer.start_timer()
-            self.current_animation = (tile_to_move_index, move_code, 0)
+            self.current_move = (tile_to_move_index, move_code)
     
     def rotate_grid(self, rotate_code):
         rotate_chrono = (rotate_code == 0)
@@ -86,7 +84,7 @@ class TaquinGridViewModel(ViewModel):
             (tile_index, move_code) = move_pair
             self.move_count += 1
             self.timer.start_timer()
-            self.current_animation = (tile_index, move_code, 0)
+            self.current_move = (tile_index, move_code)
     
     def shuffle_grid(self):
         self.current_grid.shuffle()
@@ -166,16 +164,16 @@ class TaquinGridViewModel(ViewModel):
         return str(index + 1) if self.show_figures else None
         
     def get_movement(self, index):
-        if self.current_animation != None:
-            (moving_index, move_code, animation_progress) = self.current_animation
+        if self.current_move != None:
+            (moving_index, move_code) = self.current_move
             if moving_index == index:
                 if move_code == 0:
-                    return (0, -1 * animation_progress/self.animation_frame_count)
+                    return (0, -1)
                 if move_code == 1:
-                    return (0, animation_progress/self.animation_frame_count)
+                    return (0, 1)
                 if move_code == 2:
-                    return (-1 *animation_progress/self.animation_frame_count, 0)
+                    return (-1, 0)
                 if move_code == 3:
-                    return (animation_progress/self.animation_frame_count, 0)
-        return (0,0)
+                    return (1, 0)
+        return None
                 

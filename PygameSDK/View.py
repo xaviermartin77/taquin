@@ -1,5 +1,6 @@
 import pygame
 from pygame import Rect
+from PygameSDK.Animation import *
 
 class View:
     def __init__(self, coord, bkg, border):
@@ -8,6 +9,8 @@ class View:
         self.border_color = border
         self.is_visible = True
         self.should_update = False
+        self.animation = None
+        self.animation_zone = None
         
     def display(self, window):
         if not self.is_visible:
@@ -42,3 +45,24 @@ class View:
         if self.background_color != bkg:
             self.background_color = bkg
             self.should_update = True
+            
+    def start_animation(self, animation):
+        self.animation_zone = animation.get_full_zone()
+        self.animation = animation
+            
+    def update_animation(self):
+        if self.animation == None:
+            return True
+        
+        self.animation.increment_step()
+        self.set_coordinates(self.animation.get_current_position())
+            
+        if self.animation.is_completed():
+            self.animation = None
+            self.animation_zone = None
+            return True
+        return False
+            
+    def is_animating(self):
+        return self.animation != None
+    

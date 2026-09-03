@@ -21,8 +21,6 @@ class Screen:
         self.font_infos = f_i
         self.fonts = []
         
-        self.animation_zone = None
-        
     def setup_screen(self):
         self.window = pygame.display.set_mode(self.size)
         for font_info in self.font_infos:
@@ -58,12 +56,11 @@ class Screen:
         return ([], [], [])
     
     def check_inputs(self):
-        if self.view_model.is_animating():
-            self.view_model.update_animation()
+        self.update_animation()
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 self.should_exit = True
-            if self.view_model.is_animating():
+            if self.is_animating():
                 continue
             if event.type == pygame.KEYDOWN:
                 for shortcut in self.shortcuts:
@@ -83,11 +80,11 @@ class Screen:
         return [view for view in self.views if (isinstance(view, Button) or isinstance(view, ImageButton))]
                         
     def update_if_needed(self):
-        self.update_views()
         update_rect_list = []
-        if self.animation_zone != None:
-            update_rect_list.append(self.animation_zone.copy())
-            self.animation_zone = None
+        if not self.is_animating():
+            self.update_views()
+        else:
+            update_rect_list.append(self.animation_zone())
         
         for old_view in self.views_to_hide:
             update_rect_list.append(view.coordinates)
@@ -110,3 +107,22 @@ class Screen:
     def remove_view(self, view):
         self.views_to_hide.append(view)
         self.views.remove(view)
+        
+    def animating_view(self):
+        animating_views = [view for view in self.views if view.is_animating()]
+        return animating_views[0] if len(animating_views) > 0 else None
+        
+    def is_animating(self):
+        return self.animating_view() != None
+        
+    def animation_zone(self):
+        if not self.is_animating():
+            return None
+        return self.animating_view().animation_zone
+        
+    def update_animation(self):
+        if not self.is_animating():
+            return
+        animation_completed = self.animating_view().update_animation()
+        if animation_completed:
+            self.view_model.did_complete_animation()
