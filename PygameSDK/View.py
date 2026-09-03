@@ -49,20 +49,20 @@ class View:
     def start_animation(self, animation):
         self.animation_zone = animation.get_full_zone()
         self.animation = animation
-            
+        
     def update_animation(self):
         if self.animation == None:
             return True
         
         self.animation.increment_step()
         self.set_coordinates(self.animation.get_current_position())
-            
+        
         if self.animation.is_completed():
             self.animation = None
             self.animation_zone = None
             return True
         return False
-            
+        
     def is_animating(self):
         return self.animation != None
     

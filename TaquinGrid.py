@@ -63,33 +63,33 @@ class TaquinGrid:
                 return False
         return True
         
-    def get_tile_move(self, value):
+    def get_tile_move_info(self, value):
         (blank_tile_x, blank_tile_y) = self.get_blank_tile_coordinates()
         (tile_x, tile_y) = self.get_tile_coordinates(value)
         if blank_tile_x == tile_x:
             if blank_tile_y == tile_y - 1:
-                return 0 # up
+                return (value, 0) # up
             if blank_tile_y == tile_y + 1:
-                return 1 # down
+                return (value, 1) # down
         if blank_tile_y == tile_y:
             if blank_tile_x == tile_x - 1:
-                return 2 # left
+                return (value, 2) # left
             if blank_tile_x == tile_x + 1:
-                return 3 # right
+                return (value, 3) # right
         return None
     
-    def get_tile_to_move_index(self, move_code):
+    def get_direction_move_info(self, move_code):
         (grid_width, grid_height) = self.grid_size
         (blank_tile_x, blank_tile_y) = self.get_blank_tile_coordinates()
         blank_tile_index = self.get_blank_tile_index()
         if move_code == 0 and blank_tile_y != grid_height - 1: # up
-            return self.current_array.index(blank_tile_index + grid_width)
+            return (self.current_array[blank_tile_index + grid_width], 0)
         if move_code == 1 and blank_tile_y != 0: # down
-            return self.current_array.index(blank_tile_index - grid_width)
+            return (self.current_array[blank_tile_index - grid_width], 1)
         if move_code == 2 and blank_tile_x != grid_width - 1: # left
-            return self.current_array.index(blank_tile_index + 1)
+            return (self.current_array[blank_tile_index + 1], 2)
         if move_code == 3 and blank_tile_x != 0: # right
-            return self.current_array.index(blank_tile_index - 1)
+            return (self.current_array[blank_tile_index - 1], 3)
         return None
     
     def get_rotation_move_info(self, rotate_chrono, limits = None):
@@ -98,31 +98,31 @@ class TaquinGrid:
         (end_x, end_y) = self.get_coordinates(end_index)
         (blank_tile_x, blank_tile_y) = self.get_blank_tile_coordinates()
         
-        target_up = self.get_tile_to_move_index(0)
-        target_down = self.get_tile_to_move_index(1)
-        target_left = self.get_tile_to_move_index(2)
-        target_right = self.get_tile_to_move_index(3)
+        move_up = self.get_direction_move_info(0)
+        move_down = self.get_direction_move_info(1)
+        move_left = self.get_direction_move_info(2)
+        move_right = self.get_direction_move_info(3)
         
         if blank_tile_x == start_x and blank_tile_y >= start_y and blank_tile_y <= end_y:
-            if rotate_chrono and target_up != None:
-                return (target_up, 0)
-            if not rotate_chrono and target_down != None:
-                return (target_down, 1)
+            if rotate_chrono and move_up != None:
+                return move_up
+            if not rotate_chrono and move_down != None:
+                return move_down
         if blank_tile_x == end_x and blank_tile_y >= start_y and blank_tile_y <= end_y:
-            if rotate_chrono and target_down != None:
-                return (target_down, 1)
-            if not rotate_chrono and target_up != None:
-                return (target_up, 0)
+            if rotate_chrono and move_down != None:
+                return move_down
+            if not rotate_chrono and move_up != None:
+                return move_up
         if blank_tile_y == start_y and blank_tile_x >= start_x and blank_tile_x <= end_x:
-            if rotate_chrono and target_right != None:
-                return (target_right, 3)
-            if not rotate_chrono and target_left != None:
-                return (target_left, 2)
+            if rotate_chrono and move_right != None:
+                return move_right
+            if not rotate_chrono and move_left != None:
+                return move_left
         if blank_tile_y == end_y and blank_tile_x >= start_x and blank_tile_x <= end_x:
-            if rotate_chrono and target_left != None:
-                return (target_left, 2)
-            if not rotate_chrono and target_right != None:
-                return (target_right, 3)
+            if rotate_chrono and move_left != None:
+                return move_left
+            if not rotate_chrono and move_right != None:
+                return move_right
         return None
     
     def complete_move(self, move_code):

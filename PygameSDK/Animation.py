@@ -32,7 +32,6 @@ class Animation:
             return Rect(x_current_position, y_current_position, w, h)
         return Rect(0, 0, 0, 0)
         
-        
     def is_completed(self):
         return self.animation_progress == self.animation_frame_count
     

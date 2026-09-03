@@ -64,27 +64,26 @@ class TaquinGridViewModel(ViewModel):
     
     # action handlers
     def move_tile(self, tile_index):
-        possible_move_code = self.current_grid.get_tile_move(tile_index)
-        if possible_move_code != None:
+        move_pair = self.current_grid.get_tile_move_info(tile_index)
+        if move_pair != None:
             self.move_count += 1
             self.timer.start_timer()
-            self.current_move = (tile_index, possible_move_code)
+            self.current_move = move_pair
     
     def move_grid(self, move_code):
-        tile_to_move_index = self.current_grid.get_tile_to_move_index(move_code)
-        if tile_to_move_index != None:
+        move_pair = self.current_grid.get_direction_move_info(move_code)
+        if move_pair != None:
             self.move_count += 1
             self.timer.start_timer()
-            self.current_move = (tile_to_move_index, move_code)
+            self.current_move = move_pair
     
     def rotate_grid(self, rotate_code):
         rotate_chrono = (rotate_code == 0)
         move_pair = self.current_grid.get_rotation_move_info(rotate_chrono)
         if move_pair != None:
-            (tile_index, move_code) = move_pair
             self.move_count += 1
             self.timer.start_timer()
-            self.current_move = (tile_index, move_code)
+            self.current_move = move_pair
     
     def shuffle_grid(self):
         self.current_grid.shuffle()

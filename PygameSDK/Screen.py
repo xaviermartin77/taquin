@@ -17,6 +17,7 @@ class Screen:
         
         self.views = []
         self.views_to_hide = []
+        self.cleaning_animation_zone = None
         
         self.font_infos = f_i
         self.fonts = []
@@ -85,6 +86,9 @@ class Screen:
             self.update_views()
         else:
             update_rect_list.append(self.animation_zone())
+            
+        if self.cleaning_animation_zone != None:
+            update_rect_list.append(self.cleaning_animation_zone)
         
         for old_view in self.views_to_hide:
             update_rect_list.append(view.coordinates)
@@ -99,6 +103,8 @@ class Screen:
             for view in self.views:
                 view.display(self.window)
             pygame.display.update(update_rect_list)
+        
+        self.cleaning_animation_zone = None
         
     def update_views(self):
         print('updating views')
@@ -123,6 +129,8 @@ class Screen:
     def update_animation(self):
         if not self.is_animating():
             return
+        animation_zone = self.animation_zone().copy()
         animation_completed = self.animating_view().update_animation()
         if animation_completed:
+            self.cleaning_animation_zone = animation_zone
             self.view_model.did_complete_animation()
