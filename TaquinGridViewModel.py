@@ -2,6 +2,7 @@ from PygameSDK.ViewModel import *
 from PygameSDK.Color import *
 from PygameSDK.Timer import *
 from TaquinGrid import *
+from TaquinSolver import *
 
 class TaquinGridViewModel(ViewModel):
     def __init__(self, game_size):
@@ -19,6 +20,8 @@ class TaquinGridViewModel(ViewModel):
         self.show_figures = False
         self.show_time = False
         self.show_score = False
+        
+        self.bruteforce_solver = BruteForceSolver()
     
     # superclass methods
     def handle_code(self, code):
@@ -48,9 +51,9 @@ class TaquinGridViewModel(ViewModel):
             color_value = code.split('select_background_color_', 1)[1]
             self.change_background_color(color_value)
         if 'solve_algo' in code:
-            self.solved_with_algo()
+            self.solve_with_algo()
         if 'solve_bruteforce' in code:
-            self.solved_with_bruteforce()
+            self.solve_with_bruteforce()
         if code == 'end_game':
             self.return_to_list_view()
         
@@ -119,11 +122,15 @@ class TaquinGridViewModel(ViewModel):
     def return_to_list_view(self):
         self.should_return = True
     
-    def solved_with_algo(self):
+    def solve_with_algo(self):
         print('not ready yet')
     
-    def solved_with_bruteforce(self):
-        print('not ready yet')
+    def solve_with_bruteforce(self):
+        next_move = self.bruteforce_solver.get_next_move(self.current_grid)
+        if next_move != None:
+            self.move_count += 1
+            self.timer.start_timer()
+            self.current_move = next_move
 
     # data providers for UI
     def get_tile_dimension(self, screen_size):
