@@ -1,3 +1,4 @@
+import math
 from TaquinGrid import *
 
 class TaquinSolver:
@@ -21,19 +22,38 @@ class BruteForceSolver(TaquinSolver):
         return next_move
         
     def get_all_moves(self, grid):
-        return self.get_move_sequence_with_history(grid, [])
-        
-    def get_move_sequence_with_history(self, grid, previous_grids):
         if grid.solved():
             return []
-        for move_code in range(4):
-            move = grid.get_direction_move_info(move_code)
-            if move != None:
-                new_grid = TaquinGrid(grid.grid_size, grid.current_array.copy())
-                new_grid.complete_move(move_code)
-                if new_grid.current_array not in previous_grids:
-                    new_history = previous_grids + [grid.current_array]
-                    next_sequence = self.get_move_sequence_with_history(new_grid, new_history)
-                    if next_sequence != None:
-                        return [move] + next_sequence
-        return None
+        former_positions = { 0 : [([], grid)] }
+        former_arrays = [grid.current_array]
+        current_step = 1
+        while len(former_arrays) < (math.factorial(len(grid.current_array)) / 2):
+            print('step : ' + str(current_step))
+            print('arrays : ' + str(len(former_arrays)))
+            if len(former_positions[current_step - 1]) == 0:
+                break
+            new_list = []
+            for pair in former_positions[current_step - 1]:
+                former_sequence = pair[0]
+                former_grid = pair[1]
+                for move_code in range(4):
+                    move = former_grid.get_direction_move_info(move_code)
+                    if move != None:
+                        new_grid = TaquinGrid(grid.grid_size, former_grid.current_array.copy())
+                        new_grid.complete_move(move_code)
+                        if new_grid.solved():
+                            return former_sequence + [move]
+                        array_already_found = False
+                        for array in former_arrays:
+                            if array == new_grid.current_array:
+                                array_already_found = True
+                                break
+                        if array_already_found:
+                            continue
+                        former_arrays.append(new_grid.current_array)
+                        new_sequence = former_sequence.copy() + [move]
+                        new_list.append((new_sequence, new_grid))
+            former_positions[current_step] = new_list
+            current_step = current_step + 1
+        print('Error while solving')
+        return []
