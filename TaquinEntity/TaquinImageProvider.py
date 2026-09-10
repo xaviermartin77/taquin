@@ -1,5 +1,5 @@
 import os
-from TaquinImage import *
+from TaquinEntity.TaquinImage import *
 
 class TaquinImageProvider:
     def generate_default_images(self):

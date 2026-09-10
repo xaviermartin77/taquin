@@ -1,5 +1,5 @@
 from PygameSDK.ViewModel import *
-from TaquinImageProvider import *
+from TaquinEntity.TaquinImageProvider import *
 from TaquinGridScreen import *
 from TaquinGridViewModel import *
 

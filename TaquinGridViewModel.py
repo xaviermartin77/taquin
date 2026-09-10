@@ -1,8 +1,8 @@
 from PygameSDK.ViewModel import *
 from PygameSDK.Color import *
 from PygameSDK.Timer import *
-from TaquinGrid import *
-from TaquinSolver import *
+from TaquinEntity.TaquinGrid import *
+from TaquinSolver.BruteForceSolver import *
 
 class TaquinGridViewModel(ViewModel):
     def __init__(self, game_size):

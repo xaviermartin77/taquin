@@ -1,12 +1,6 @@
 import math
-from TaquinGrid import *
-
-class TaquinSolver:
-    def get_next_move(self, grid):
-        return None
-        
-    def get_all_moves(self, grid):
-        return []
+from TaquinEntity.TaquinGrid import *
+from TaquinSolver.TaquinSolver import *
 
 class BruteForceSolver(TaquinSolver):
     def __init__(self):
