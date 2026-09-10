@@ -19,6 +19,11 @@ class Label(View):
         if self.text != txt:
             self.text = txt
             self.should_update = True
+            
+    def set_text_color(self, txt_clr):
+        if self.text_color != txt_clr:
+            self.text_color = txt_clr
+            self.should_update = True
         
     def show_text(self, window):
         if self.multiple_text_lines:
