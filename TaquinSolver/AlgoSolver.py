@@ -10,13 +10,13 @@ class AlgoSolver(TaquinSolver):
         if copy_grid.solved(): # grid already solved
             return None
         if copy_grid.is_final_square():
-            self.solve_final_square(copy_grid)
+            return self.get_next_move_final_square(copy_grid)
         elif copy_grid.is_last_two_lines():
-            self.solve_last_two_lines(copy_grid)
+            return self.get_next_move_last_two_lines(copy_grid)
         elif copy_grid.is_last_two_elements_of_line():
-            self.solve_last_two_elements_of_line(copy_grid)
+            return self.get_next_move_last_two_elements_of_line(copy_grid)
         else:
-            self.solve_common_case(copy_grid)
+            return self.get_next_move_common_case(copy_grid)
     
     def get_all_moves(self, grid):
         move_sequence = []
@@ -30,19 +30,30 @@ class AlgoSolver(TaquinSolver):
             copy_grid.complete_move(move[1])
         return move_sequence
     
-    def solve_final_square(self, grid):
-        print('final square')
-        return None
+    def get_next_move_final_square(self, grid):
+        (square_array, limits) = grid.get_last_square_array_and_limits()
+        rotate_chrono = None
+        if square_array[0] == 0:
+            rotate_chrono = square_array[1] == 1
+        elif square_array[3] == 0:
+            rotate_chrono = square_array[1] != 3
+        else:
+            rotate_chrono = square_array[2] == 0
+        move = grid.get_rotation_move_info(rotate_chrono, limits)
+        if move == None:
+            print('An error occured while solving')
+            return None
+        return move
     
-    def solve_last_two_lines(self, grid):
+    def get_next_move_last_two_lines(self, grid):
         print('last two lines')
         return None
     
-    def solve_last_two_elements_of_line(self, grid):
+    def get_next_move_last_two_elements_of_line(self, grid):
         print('last two elements of line')
         return None
     
-    def solve_common_case(self, grid):
+    def get_next_move_common_case(self, grid):
         print('common case')
         return None
 
@@ -73,3 +84,19 @@ class SolvableGrid(TaquinGrid):
     
     def is_last_two_elements_of_line(self):
         return self.grid_size[0] - self.get_first_unsolved_tile_coordinates()[0] < 3
+    
+    def get_last_square_array_and_limits(self):
+        (grid_width, grid_height) = self.grid_size
+        first_index = grid_width * (grid_height - 1) - 2
+        last_index = grid_width * grid_height - 1
+        square_array = []
+        for index, value in enumerate([self.current_array[first_index], self.current_array[first_index + 1], self.current_array[last_index - 1], self.current_array[last_index]]):
+            if value == first_index:
+                square_array.append(0)
+            if value == first_index + 1:
+                square_array.append(1)
+            if value == last_index - 1:
+                square_array.append(2)
+            if value == last_index:
+                square_array.append(3)
+        return (square_array, (first_index, last_index))
