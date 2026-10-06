@@ -3,8 +3,9 @@ from TaquinEntity.TaquinGrid import *
 from TaquinSolver.TaquinSolver import *
 
 class BruteForceSolver(TaquinSolver):
-    def __init__(self):
+    def __init__(self, log = False):
         self.memorized_list = []
+        self.should_display_log = log
     
     def get_next_move(self, grid):
         if len(self.memorized_list) == 0:
@@ -22,8 +23,9 @@ class BruteForceSolver(TaquinSolver):
         former_arrays = [grid.current_array]
         current_step = 1
         while len(former_arrays) < (math.factorial(len(grid.current_array)) / 2):
-            print('step : ' + str(current_step))
-            print('arrays : ' + str(len(former_arrays)))
+            if self.should_display_log:
+                print('step : ' + str(current_step))
+                print('arrays : ' + str(len(former_arrays)))
             if len(former_positions[current_step - 1]) == 0:
                 break
             new_list = []

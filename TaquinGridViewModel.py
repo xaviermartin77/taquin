@@ -146,7 +146,7 @@ class TaquinGridViewModel(ViewModel):
         return self.current_grid.solved()
         
     def get_current_time(self):
-        return self.timer.get_seconds() # no auto update, needs improvement
+        return self.timer.get_seconds()
     
     def first_button_text(self):
         return 'Menu' if self.grid_solved() else 'Hint'

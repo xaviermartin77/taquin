@@ -12,7 +12,7 @@ class TaquinImagesViewModel(ViewModel):
         self.generate_image_list()
         
         self.first_list_index = 0
-        self.game_width = 2
+        self.game_width = 4
         self.game_height = 2
         self.selected_image_index = 0
     
