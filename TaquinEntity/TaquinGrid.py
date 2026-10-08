@@ -104,24 +104,24 @@ class TaquinGrid:
         move_right = self.get_direction_move_info(3)
         
         if blank_tile_x == start_x and blank_tile_y >= start_y and blank_tile_y <= end_y:
-            if rotate_chrono and move_up != None:
+            if rotate_chrono and blank_tile_y != end_y:
                 return move_up
-            if not rotate_chrono and move_down != None:
+            if not rotate_chrono and blank_tile_y != start_y:
                 return move_down
         if blank_tile_x == end_x and blank_tile_y >= start_y and blank_tile_y <= end_y:
-            if rotate_chrono and move_down != None:
+            if rotate_chrono and blank_tile_y != start_y:
                 return move_down
-            if not rotate_chrono and move_up != None:
+            if not rotate_chrono and blank_tile_y != end_y:
                 return move_up
         if blank_tile_y == start_y and blank_tile_x >= start_x and blank_tile_x <= end_x:
-            if rotate_chrono and move_right != None:
+            if rotate_chrono and blank_tile_x != start_x:
                 return move_right
-            if not rotate_chrono and move_left != None:
+            if not rotate_chrono and blank_tile_x != end_x:
                 return move_left
         if blank_tile_y == end_y and blank_tile_x >= start_x and blank_tile_x <= end_x:
-            if rotate_chrono and move_left != None:
+            if rotate_chrono and blank_tile_x != end_x:
                 return move_left
-            if not rotate_chrono and move_right != None:
+            if not rotate_chrono and blank_tile_x != start_x:
                 return move_right
         return None
     

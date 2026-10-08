@@ -46,8 +46,12 @@ class AlgoSolver(TaquinSolver):
     
     def get_next_move_last_two_lines(self, grid):
         two_lines_array = grid.get_last_two_lines_array()
-        adapted_grid = SolvableGrid((len(two_lines_array)/2, 2), two_lines_array)
-        (first_column_index, last_column_index) = (0, len(two_lines_array)/2 - 1)
+        move_direction = self.get_move_direction_for_two_lines_array(two_lines_array)
+        return grid.get_direction_move_info(move_direction)
+        
+    def get_move_direction_for_two_lines_array(self, array):
+        adapted_grid = SolvableGrid((len(array)/2, 2), array)
+        (first_column_index, last_column_index) = (0, len(array)/2 - 1)
         (top_x, top_y) = adapted_grid.get_tile_coordinates(0)
         (bottom_x, bottom_y) = adapted_grid.get_tile_coordinates(1)
         (blank_x, blank_y) = adapted_grid.get_tile_coordinates(-1)
@@ -110,11 +114,27 @@ class AlgoSolver(TaquinSolver):
                     move_direction = 3 if blank_y != right_tile_y else vertical_move
             else:
                 move_direction = 3 # move right
-        return grid.get_direction_move_info(move_direction)
+        return move_direction
     
     def get_next_move_last_two_elements_of_line(self, grid):
-        print('last two elements of line') # warning : check if last two tiles and blank tile in last two columns, separate cases
-        return None
+        if grid.is_two_columns_solvable():
+            mirror_two_lines_array = grid.get_two_lines_array_from_last_two_columns()
+            #print(mirror_two_lines_array)
+            mirror_move_direction = self.get_move_direction_for_two_lines_array(mirror_two_lines_array)
+            correct_move_direction = self.get_mirror_move_direction(mirror_move_direction)
+            return grid.get_direction_move_info(correct_move_direction)
+        return None # manage translate three tiles (two targets and blank tile) on two last columns here
+        
+    def get_mirror_move_direction(self, move_direction):
+        #print(move_direction)
+        if move_direction == 0: # up
+            return 3 # right
+        if move_direction == 1: # down
+            return 2 # left
+        if move_direction == 2: # left
+            return 0 # up
+        if move_direction == 3: # right
+            return 1 # down
     
     def get_next_move_common_case(self, grid):
         print('common case')
@@ -133,6 +153,18 @@ class SolvableGrid(TaquinGrid):
         last_line_first_unsolved_tile_x = self.grid_size[0] if filter_result == None else self.get_coordinates(filter_result[0])[0]
         first_unsolved_x = self.get_first_unsolved_tile_coordinates()[0]
         return min(first_unsolved_x, last_line_first_unsolved_tile_x)
+        
+    def get_last_two_elements_of_unsolved_line(self):
+        if not self.is_last_two_elements_of_line():
+            return (grid_width * grid_height - 2, grid_width * grid_height - 1)
+        filter_result = next(filter(lambda item: item[0] != item[1], enumerate(self.current_array)), None)
+        if filter_result == None: # grid already solved, should not happen
+            return (grid_width * grid_height - 2, grid_width * grid_height - 1)
+        first_unsolved_index = filter_result[0]
+        if self.get_coordinates(first_unsolved_index)[0] == self.grid_size[0] - 1:
+            return (first_unsolved_index - 1, first_unsolved_index)
+        else:
+            return (first_unsolved_index, first_unsolved_index + 1)
     
     def is_final_square(self):
         (grid_width, grid_height) = self.grid_size
@@ -146,6 +178,13 @@ class SolvableGrid(TaquinGrid):
     
     def is_last_two_elements_of_line(self):
         return self.grid_size[0] - self.get_first_unsolved_tile_coordinates()[0] < 3
+        
+    def is_two_columns_solvable(self):
+        (first_index, second_index) = self.get_last_two_elements_of_unsolved_line()
+        first_index_tile_x = self.get_tile_coordinates(first_index)[0]
+        second_index_tile_x = self.get_tile_coordinates(second_index)[0]
+        blank_x = self.get_blank_tile_coordinates()[0]
+        return self.grid_size[0] - first_index_tile_x < 3 and self.grid_size[0] - second_index_tile_x < 3  and self.grid_size[0] - blank_x < 3
     
     def get_last_square_array_and_limits(self):
         (grid_width, grid_height) = self.grid_size
@@ -184,3 +223,24 @@ class SolvableGrid(TaquinGrid):
                 else:
                     square_array.append(None)
         return square_array
+        
+    def get_two_lines_array_from_last_two_columns(self):
+        (grid_width, grid_height) = self.grid_size
+        (first_index, second_index) = self.get_last_two_elements_of_unsolved_line()
+        last_index = grid_width * grid_height - 1
+        start_column_index = self.get_first_unsolved_tile_coordinates()[1]
+        
+        square_array = []
+        for line_index in range(grid_width - 1, grid_width - 3, -1):
+            for column_index in range(start_column_index, grid_height):
+                value = self.current_array[line_index + grid_width * column_index]
+                if value == first_index:
+                    square_array.append(1)
+                elif value == second_index:
+                    square_array.append(0)
+                elif value == last_index:
+                    square_array.append(-1)
+                else:
+                    square_array.append(None)
+        return square_array
+        
