@@ -119,14 +119,12 @@ class AlgoSolver(TaquinSolver):
     def get_next_move_last_two_elements_of_line(self, grid):
         if grid.is_two_columns_solvable():
             mirror_two_lines_array = grid.get_two_lines_array_from_last_two_columns()
-            #print(mirror_two_lines_array)
             mirror_move_direction = self.get_move_direction_for_two_lines_array(mirror_two_lines_array)
             correct_move_direction = self.get_mirror_move_direction(mirror_move_direction)
             return grid.get_direction_move_info(correct_move_direction)
         return None # manage translate three tiles (two targets and blank tile) on two last columns here
         
     def get_mirror_move_direction(self, move_direction):
-        #print(move_direction)
         if move_direction == 0: # up
             return 3 # right
         if move_direction == 1: # down
@@ -137,8 +135,40 @@ class AlgoSolver(TaquinSolver):
             return 1 # down
     
     def get_next_move_common_case(self, grid):
-        print('common case')
-        return None
+        ((target_x, target_y), (tile_x, tile_y), (blank_x, blank_y), (last_line_index, last_column_index)) = grid.get_common_array_info()
+        if (blank_x - tile_x) >= 2:
+            move_direction = 0 if (blank_x, blank_y) == (target_x, target_y) else 3
+        elif (tile_x - blank_x) >= 2:
+            move_direction = 2
+        elif (blank_y - tile_y) >= 2:
+            move_direction = 1
+        elif (tile_y - blank_y) >= 2:
+            move_direction = 0
+        elif tile_x < target_x:
+            if blank_x == tile_x:
+                move_direction = 2
+            elif blank_x < tile_x:
+                move_direction = 2 if blank_y != tile_y else 1 if tile_y == last_line_index else 0
+            else:
+                move_direction = 3 if blank_y == tile_y else 1 if blank_y > tile_y else 0
+        elif tile_x > target_x:
+            if blank_x == tile_x:
+                move_direction = 3
+            elif blank_x > tile_x:
+                move_direction = 3 if blank_y != tile_y else 1 if tile_y == last_line_index else 0
+            else:
+                move_direction = 2 if blank_y == tile_y else 1 if blank_y > tile_y else 0
+        else: # target_x == tile_x => tile_y < target_y
+            if blank_x == tile_x:
+                move_direction = 0 if blank_y < tile_y else 3 if tile_x == last_column_index else 2
+            elif blank_x > tile_x:
+                move_direction = 3 if blank_y < tile_y else 1
+            else:
+                if tile_y == target_y + 1:
+                    move_direction = 2 if blank_y > tile_y else 0
+                else:
+                    move_direction = 2 if blank_y < tile_y else 1
+        return grid.get_direction_move_info(move_direction)
 
 
 class SolvableGrid(TaquinGrid):
@@ -244,3 +274,10 @@ class SolvableGrid(TaquinGrid):
                     square_array.append(None)
         return square_array
         
+    def get_common_array_info(self):
+        (grid_width, grid_height) = self.grid_size
+        first_unsolved_coord = self.get_first_unsolved_tile_coordinates()
+        tile_coord = self.get_tile_coordinates(first_unsolved_coord[0] + grid_width * first_unsolved_coord[1])
+        blank_coord = self.get_blank_tile_coordinates()
+        grid_limits = (grid_width - 1, grid_height - 1)
+        return (first_unsolved_coord, tile_coord, blank_coord, grid_limits)
